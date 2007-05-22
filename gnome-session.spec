@@ -12,7 +12,7 @@
 Summary: GNOME session manager
 Name: gnome-session
 Version: 2.18.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 URL: http://www.gnome.org
 Source0: http://ftp.gnome.org/pub/gnome/sources/gnome-session/2.18/%{name}-%{version}.tar.bz2
 Source1: redhat-default-session
@@ -206,6 +206,9 @@ fi
 %{_datadir}/icons/hicolor/scalable/apps/session-properties.svg
 
 %changelog
+* Tue May 22 2007 - Bastien Nocera <bnocera@redhat.com> - 2.18.0-8
+- Fix up logic in iris patch
+
 * Tue May 15 2007 Ray Strode <rstrode@redhat.com> - 2.18.0-7
 - Don't show iris animation when using compiz (bug 237842)
 
