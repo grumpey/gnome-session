@@ -11,7 +11,7 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 2.18.2
+Version: 2.18.3
 Release: 1%{?dist}
 URL: http://www.gnome.org
 Source0: http://download.gnome.org/sources/gnome-session/2.18/%{name}-%{version}.tar.bz2
@@ -202,6 +202,9 @@ fi
 %{_datadir}/icons/hicolor/scalable/apps/session-properties.svg
 
 %changelog
+* Mon Jul  2 2007 Matthias Clasen <mclasen@redhat.com> - 2.18.3-1
+- Update to 2.18.3
+
 * Mon May 28 2007 Matthias Clasen <mclasen@redhat.com> - 2.18.2-1
 - Update to 2.18.2
 
