@@ -43,9 +43,6 @@ Patch9: gnome-session-2.13.4-no-crashes.patch
 # need to figure something out here
 Patch13: gnome-session-2.17.5-window-manager.patch
 
-# don't pop up the dialog as it can take longer than 5 seconds
-Patch20: gnome-session-2.19.4-atspi-timeout.patch
-
 # http://bugzilla.gnome.org/show_bug.cgi?id=411506
 #Patch21: gnome-session-2.17.91-use-gdm-at-hints-3.patch
 
@@ -91,7 +88,6 @@ GNOME components and handles logout and saving the session.
 %patch1 -p1 -b .icons
 %patch9 -p1 -b .no-crashes
 %patch13 -p1 -b .window-manager
-%patch20 -p1 -b .timeout
 #%patch21 -p0 -b .use-gdm-hints
 #%patch22 -p1 -b .ice-leaks
 
