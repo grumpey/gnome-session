@@ -11,7 +11,7 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 2.24.2
+Version: 2.24.3
 Release: 1%{?dist}
 URL: http://www.gnome.org
 Source0: http://download.gnome.org/sources/gnome-session/2.24/%{name}-%{version}.tar.bz2
@@ -180,6 +180,9 @@ fi
 
 
 %changelog
+* Thu Jan 15 2009 Matthias Clasen  <mclasen@redhat.com> - 2.24.3-1
+- Update to 2.24.3
+
 * Tue Nov 25 2008 Matthias Clasen  <mclasen@redhat.com> - 2.24.2-1
 - Update to 2.24.2
 
