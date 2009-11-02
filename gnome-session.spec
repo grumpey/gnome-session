@@ -68,9 +68,9 @@ Requires(post): GConf2 >= %{gconf2_version}
 Requires(preun): GConf2 >= %{gconf2_version}
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=592520
-#Patch0: unresponsive-timeout.patch
+Patch0: unresponsive-timeout.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=592519
-#Patch1: show-lock.patch
+Patch1: show-lock.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=598211
 Patch2: xsmp-stop.patch
 
