@@ -1,4 +1,4 @@
-%define gtk_version 2.90
+%define gtk_version 2.20
 %define dbus_glib_version 0.70
 %define dbus_version 0.90
 %define gnome_keyring_version 2.21.92
@@ -36,7 +36,7 @@ Requires: polkit-desktop-policy
 ## we conflict with gdm that contains the GNOME gdm xsession
 Conflicts: gdm < 1:2.6.0.8-5
 
-BuildRequires: gtk3-devel >= %{gtk_version}
+BuildRequires: gtk2-devel >= %{gtk_version}
 BuildRequires: dbus-devel >= %{dbus_version}
 BuildRequires: dbus-glib-devel >= %{dbus_glib_version}
 BuildRequires: gnome-keyring-devel >= %{gnome_keyring_version}
@@ -102,12 +102,10 @@ autoreconf -i -f
 %build
 %configure --enable-docbook-docs                                \
            --docdir=%{_datadir}/doc/%{name}-%{version}          \
-           --with-gtk=3.0
+           --with-gtk=2.0
 make %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
 unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
@@ -129,9 +127,6 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/gnome/autostart
 cp AUTHORS COPYING NEWS README $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
 
 %find_lang %{po_package}
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
