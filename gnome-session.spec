@@ -1,4 +1,4 @@
-%define gtk2_version 2.11.3
+%define gtk_version 2.90
 %define dbus_glib_version 0.70
 %define dbus_version 0.90
 %define gnome_keyring_version 2.21.92
@@ -9,8 +9,8 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 2.31.2
-Release: 2%{?dist}
+Version: 2.31.6
+Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/2.31/%{name}-%{version}.tar.bz2
@@ -36,14 +36,13 @@ Requires: polkit-desktop-policy
 ## we conflict with gdm that contains the GNOME gdm xsession
 Conflicts: gdm < 1:2.6.0.8-5
 
-BuildRequires: gtk2-devel >= %{gtk2_version}
+BuildRequires: gtk3-devel >= %{gtk_version}
 BuildRequires: dbus-devel >= %{dbus_version}
 BuildRequires: dbus-glib-devel >= %{dbus_glib_version}
 BuildRequires: gnome-keyring-devel >= %{gnome_keyring_version}
 BuildRequires: libnotify-devel >= %{libnotify_version}
 BuildRequires: GConf2-devel >= %{gconf2_version}
 BuildRequires: GConf2-gtk >= %{gconf2_version}
-BuildRequires: gnome-desktop-devel
 BuildRequires: pango-devel
 BuildRequires: gnome-settings-daemon-devel
 BuildRequires: desktop-file-utils
@@ -60,7 +59,7 @@ BuildRequires: gettext
 BuildRequires: libX11-devel libXt-devel
 BuildRequires: libXtst-devel
 BuildRequires: xmlto
-BuildRequires: DeviceKit-power-devel
+BuildRequires: upower-devel
 BuildRequires: gnome-common
 
 # for patch3
@@ -101,8 +100,9 @@ echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 autoreconf -i -f
 
 %build
-
-%configure --enable-docbook-docs --docdir=%{_datadir}/doc/%{name}-%{version}
+%configure --enable-docbook-docs                                \
+           --docdir=%{_datadir}/doc/%{name}-%{version}          \
+           --with-gtk=3.0
 make %{?_smp_mflags}
 
 %install
@@ -175,13 +175,12 @@ fi
 %{_datadir}/gnome-session/session-properties.ui
 %{_datadir}/icons/hicolor/*/apps/session-properties.png
 %{_datadir}/icons/hicolor/scalable/apps/session-properties.svg
-%{_sysconfdir}/xdg/autostart/gnome-settings-daemon-helper.desktop
-%dir %{_libexecdir}/gnome-session
-%dir %{_libexecdir}/gnome-session/helpers
-%{_libexecdir}/gnome-session/helpers/gnome-settings-daemon-helper
 
 
 %changelog
+* Fri Aug  6 2010 Matthias Clasen <mclasen@redhat.com> - 2.31.6-1
+- Update to 2.31.6
+
 * Thu Jul  8 2010 Matthias Clasen <mclasen@redhat.com> - 2.31.2-2
 - Require dconf
 
