@@ -9,11 +9,11 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 2.31.6
-Release: 1%{?dist}.1
+Version: 2.32.0
+Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
-Source0: http://download.gnome.org/sources/gnome-session/2.31/%{name}-%{version}.tar.bz2
+Source0: http://download.gnome.org/sources/gnome-session/2.32/%{name}-%{version}.tar.bz2
 Source2: gnome.desktop
 
 License: GPLv2+
@@ -75,6 +75,8 @@ Patch3: 0001-Add-ability-to-perform-actions-after-a-period-of-idl.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=607094
 Patch4: nag-root-user.patch
 
+Patch7: gnome-session-cflags.patch
+
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
 
@@ -94,6 +96,8 @@ Desktop file to add GNOME to display manager session menu.
 %setup -q
 %patch3 -p1 -b .max-idle
 %patch4 -p1 -b .nag-root-user
+
+%patch7 -p1 -b .cflags
 
 echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 
@@ -173,6 +177,9 @@ fi
 
 
 %changelog
+* Thu Sep 30 2010 Matthias Clasen <mclasen@redhat.com> - 2.32.0-1
+- Update to 2.32.0
+
 * Wed Sep 29 2010 jkeating - 2.31.6-1.1
 - Rebuilt for gcc bug 634757
 
