@@ -75,6 +75,8 @@ Patch3: 0001-Add-ability-to-perform-actions-after-a-period-of-idl.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=607094
 Patch4: nag-root-user.patch
 
+Patch7: gnome-session-cflags.patch
+
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
 
@@ -94,6 +96,12 @@ Desktop file to add GNOME to display manager session menu.
 %setup -q
 %patch3 -p1 -b .max-idle
 %patch4 -p1 -b .nag-root-user
+
+# next two are here: https://bugzilla.gnome.org/show_bug.cgi?id=630277
+%patch5 -p1 -b .gdk-display-fix
+%patch6 -p1 -b .drop-set-has-separator
+
+%patch7 -p1 -b .cflags
 
 echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 
