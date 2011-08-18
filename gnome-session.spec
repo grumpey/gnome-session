@@ -2,7 +2,7 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 3.1.3
+Version: 3.1.5
 Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
@@ -132,11 +132,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 glib-compile-schemas %{_datadir}/glib-2.0/schemas || :
 
 %files xsession
-%defattr(-,root,root,-)
 %{_datadir}/xsessions/*
 
 %files -f %{po_package}.lang
-%defattr(-,root,root,-)
 %doc %dir %{_datadir}/doc/%{name}-%{version}
 %doc %{_datadir}/doc/%{name}-%{version}/AUTHORS
 %doc %{_datadir}/doc/%{name}-%{version}/COPYING
@@ -162,6 +160,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Wed Aug 17 2011 Matthias Clasen <mclasen@redhat.com> 3.1.5-1
+- Update to 3.1.5
+
 * Mon Jul 04 2011 Bastien Nocera <bnocera@redhat.com> 3.1.3-1
 - Update to 3.1.3
 
