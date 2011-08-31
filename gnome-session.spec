@@ -61,6 +61,7 @@ BuildRequires: libXtst-devel
 BuildRequires: xmlto
 BuildRequires: upower-devel
 BuildRequires: gnome-common
+BuildRequires: json-glib-devel
 
 Requires(pre): GConf2
 Requires(post): GConf2
