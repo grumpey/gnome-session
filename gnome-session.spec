@@ -2,7 +2,7 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 3.1.5
+Version: 3.1.90
 Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
@@ -160,6 +160,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Wed Aug 31 2011 Matthias Clasen <mclasen@redhat.com> 3.1.90-1
+- Update to 3.1.90
+
 * Wed Aug 17 2011 Matthias Clasen <mclasen@redhat.com> 3.1.5-1
 - Update to 3.1.5
 
