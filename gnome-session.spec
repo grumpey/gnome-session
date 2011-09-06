@@ -2,7 +2,7 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 3.1.90
+Version: 3.1.91
 Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
@@ -40,7 +40,6 @@ BuildRequires: dbus-glib-devel
 BuildRequires: gnome-keyring-devel
 BuildRequires: libnotify-devel >= 0.7.0
 BuildRequires: GConf2-devel
-BuildRequires: GConf2-gtk
 BuildRequires: pango-devel
 BuildRequires: gnome-settings-daemon-devel
 BuildRequires: desktop-file-utils
@@ -49,6 +48,7 @@ BuildRequires: libXrandr-devel
 BuildRequires: xorg-x11-xtrans-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: librsvg2-devel
+BuildRequires: json-glib-devel
 
 # this is so the configure checks find /usr/bin/halt etc.
 BuildRequires: usermode
@@ -61,11 +61,6 @@ BuildRequires: libXtst-devel
 BuildRequires: xmlto
 BuildRequires: upower-devel
 BuildRequires: gnome-common
-BuildRequires: json-glib-devel
-
-Requires(pre): GConf2
-Requires(post): GConf2
-Requires(preun): GConf2
 
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
@@ -97,9 +92,7 @@ autoreconf -i -f
 make %{?_smp_mflags} V=1
 
 %install
-export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
-unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 desktop-file-install --vendor gnome --delete-original                   \
   --dir $RPM_BUILD_ROOT%{_datadir}/applications           \
@@ -109,7 +102,6 @@ desktop-file-install --vendor gnome --delete-original                   \
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/gnome/autostart
 
 install -Dp -m 644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_datadir}/gnome/autostart
-
 install -Dp -m 644 %{SOURCE2} ${RPM_BUILD_ROOT}%{_datadir}/xsessions/
 
 cp -p AUTHORS COPYING NEWS README $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
@@ -161,6 +153,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Tue Sep  6 2011 Matthias Clasen <mclasen@redhat.com> 3.1.91-1
+- Update to 3.1.91
+
 * Wed Aug 31 2011 Matthias Clasen <mclasen@redhat.com> 3.1.90-1
 - Update to 3.1.90
 
