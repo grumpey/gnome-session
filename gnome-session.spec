@@ -3,7 +3,7 @@
 Summary: GNOME session manager
 Name: gnome-session
 Version: 3.1.91
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.1/%{name}-%{version}.tar.xz
@@ -17,8 +17,6 @@ License: GPLv2+
 Group: User Interface/Desktops
 
 Requires: system-logos
-# required to get gconf-sanity-check-2 in the right place
-Requires: GConf2-gtk
 # Needed for gnome-settings-daemon
 Requires: control-center-filesystem
 
@@ -153,6 +151,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Thu Sep  8 2011 Matthias Clasen <mclasen@redhat.com> 3.1.91-2
+- Drop GConf2-gtk dep
+
 * Tue Sep  6 2011 Matthias Clasen <mclasen@redhat.com> 3.1.91-1
 - Update to 3.1.91
 
