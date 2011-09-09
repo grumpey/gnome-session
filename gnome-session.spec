@@ -3,7 +3,7 @@
 Summary: GNOME session manager
 Name: gnome-session
 Version: 3.1.91
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.1/%{name}-%{version}.tar.xz
@@ -12,6 +12,10 @@ Source2: gnome.desktop
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=644325
 Patch0: gnome-session-3.0.1-renderer-blacklist.patch
+
+# upstream fixes
+Patch1: 0001-gsm-Never-mark-as-handled-the-Disconnected-signal-fr.patch
+Patch2: 0002-gsm-Disconnect-all-dbus-clients-when-dbus-is-disconn.patch
 
 License: GPLv2+
 Group: User Interface/Desktops
@@ -78,6 +82,8 @@ Desktop file to add GNOME to display manager session menu.
 %prep
 %setup -q
 %patch0 -p1 -b .blacklist
+%patch1 -p1 -b .disconnect
+%patch2 -p1 -b .disconnect2
 
 echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 
@@ -151,6 +157,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Fri Sep  9 2011 Matthias Clasen <mclasen@redhat.com> 3.1.91-3
+- Some fixes to make gdm fallback mode login work
+
 * Thu Sep  8 2011 Matthias Clasen <mclasen@redhat.com> 3.1.91-2
 - Drop GConf2-gtk dep
 
