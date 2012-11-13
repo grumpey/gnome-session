@@ -18,10 +18,10 @@ https://bugzilla.gnome.org/show_bug.cgi?id=688209
  gnome-session/main.c            |  6 ------
  4 files changed, 22 insertions(+), 9 deletions(-)
 
-Index: gnome-session-3.6.1/gnome-session/gsm-manager.c
+Index: gnome-session-3.6.2/gnome-session/gsm-manager.c
 ===================================================================
---- gnome-session-3.6.1.orig/gnome-session/gsm-manager.c
-+++ gnome-session-3.6.1/gnome-session/gsm-manager.c
+--- gnome-session-3.6.2.orig/gnome-session/gsm-manager.c
++++ gnome-session-3.6.2/gnome-session/gsm-manager.c
 @@ -48,6 +48,7 @@
  #include "gsm-presence.h"
  #include "gsm-shell.h"
@@ -75,10 +75,10 @@ Index: gnome-session-3.6.1/gnome-session/gsm-manager.c
          if (manager->priv->clients != NULL) {
                  g_signal_handlers_disconnect_by_func (manager->priv->clients,
                                                        on_store_client_added,
-Index: gnome-session-3.6.1/gnome-session/gsm-xsmp-server.c
+Index: gnome-session-3.6.2/gnome-session/gsm-xsmp-server.c
 ===================================================================
---- gnome-session-3.6.1.orig/gnome-session/gsm-xsmp-server.c
-+++ gnome-session-3.6.1/gnome-session/gsm-xsmp-server.c
+--- gnome-session-3.6.2.orig/gnome-session/gsm-xsmp-server.c
++++ gnome-session-3.6.2/gnome-session/gsm-xsmp-server.c
 @@ -71,7 +71,7 @@ struct GsmXsmpServerPrivate
          IceListenObj   *xsmp_sockets;
          int             num_xsmp_sockets;
@@ -113,10 +113,10 @@ Index: gnome-session-3.6.1/gnome-session/gsm-xsmp-server.c
                  g_debug ("GsmXsmpServer: In shutdown, rejecting new client");
  
                  *failure_reason_ret = strdup (_("Refusing new client connection because the session is currently being shut down\n"));
-Index: gnome-session-3.6.1/gnome-session/gsm-xsmp-server.h
+Index: gnome-session-3.6.2/gnome-session/gsm-xsmp-server.h
 ===================================================================
---- gnome-session-3.6.1.orig/gnome-session/gsm-xsmp-server.h
-+++ gnome-session-3.6.1/gnome-session/gsm-xsmp-server.h
+--- gnome-session-3.6.2.orig/gnome-session/gsm-xsmp-server.h
++++ gnome-session-3.6.2/gnome-session/gsm-xsmp-server.h
 @@ -52,6 +52,7 @@ GType               gsm_xsmp_server_get_
  
  GsmXsmpServer *     gsm_xsmp_server_new                            (GsmStore      *client_store);
@@ -125,19 +125,19 @@ Index: gnome-session-3.6.1/gnome-session/gsm-xsmp-server.h
  
  G_END_DECLS
  
-Index: gnome-session-3.6.1/gnome-session/main.c
+Index: gnome-session-3.6.2/gnome-session/main.c
 ===================================================================
---- gnome-session-3.6.1.orig/gnome-session/main.c
-+++ gnome-session-3.6.1/gnome-session/main.c
-@@ -44,7 +44,6 @@
- #include "gsm-manager.h"
+--- gnome-session-3.6.2.orig/gnome-session/main.c
++++ gnome-session-3.6.2/gnome-session/main.c
+@@ -45,7 +45,6 @@
  #include "gsm-session-fill.h"
  #include "gsm-store.h"
+ #include "gsm-system.h"
 -#include "gsm-xsmp-server.h"
  #include "gsm-fail-whale-dialog.h"
  
  #define GSM_DBUS_NAME "org.gnome.SessionManager"
-@@ -282,7 +281,6 @@ main (int argc, char **argv)
+@@ -283,7 +282,6 @@ main (int argc, char **argv)
          char             *display_str;
          GsmManager       *manager;
          GsmStore         *client_store;
@@ -145,16 +145,16 @@ Index: gnome-session-3.6.1/gnome-session/main.c
          GdmSignalHandler *signal_handler;
          static char     **override_autostart_dirs = NULL;
          static char      *session_name = NULL;
-@@ -349,8 +347,6 @@ main (int argc, char **argv)
- 
-         client_store = gsm_store_new ();
+@@ -357,8 +355,6 @@ main (int argc, char **argv)
+          */
+         g_object_unref (gsm_get_system ());
  
 -        xsmp_server = gsm_xsmp_server_new (client_store);
 -
          if (!acquire_name ()) {
                  gsm_fail_whale_dialog_we_failed (TRUE, TRUE, NULL);
                  gtk_main ();
-@@ -377,15 +373,10 @@ main (int argc, char **argv)
+@@ -385,15 +381,10 @@ main (int argc, char **argv)
                  gsm_util_init_error (TRUE, "Failed to load session \"%s\"", session_name ? session_name : "(null)");
          }
  
