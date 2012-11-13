@@ -3,7 +3,7 @@
 Summary: GNOME session manager
 Name: gnome-session
 Version: 3.6.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.6/%{name}-%{version}.tar.xz
@@ -14,6 +14,7 @@ Patch0: gnome-session-3.3.1-llvmpipe.patch
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
 Patch2: 0001-main-Set-XDG_MENU_PREFIX.patch
+Patch3: reject-shutdown-clients.patch
 
 License: GPLv2+
 Group: User Interface/Desktops
@@ -84,6 +85,7 @@ Desktop file to add GNOME to display manager session menu.
 %patch0 -p1 -b .llvmpipe
 %patch1 -p1 -b .nv30
 %patch2 -p1 -b .set-xdg-menu-prefix
+%patch3 -p1 -b .reject-shutdown-clients
 
 echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 
@@ -158,6 +160,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Tue Nov 13 2012 Daniel Drake <dsd@laptop.org> - 3.6.2-2
+- Add upstream patch to fix handling of client registration during shutdown
+- Fixes slow gnome-session shutdown for maliit users
+
 * Tue Nov 13 2012 Kalev Lember <kalevlember@gmail.com> - 3.6.2-1
 - Update to 3.6.2
 - Rebase the XDG_MENU_PREFIX patch
