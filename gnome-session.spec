@@ -2,8 +2,8 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 3.6.1
-Release: 2%{?dist}
+Version: 3.6.2
+Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.6/%{name}-%{version}.tar.xz
@@ -158,6 +158,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Tue Nov 13 2012 Kalev Lember <kalevlember@gmail.com> - 3.6.2-1
+- Update to 3.6.2
+- Rebase the XDG_MENU_PREFIX patch
+
 * Thu Oct 18 2012 Florian Müllner <fmuellner@redhat.com> - 3.6.1-2
 - Set XDG_MENU_PREFIX to pick the correct menu layout in
   gnome-shell and alacarte
