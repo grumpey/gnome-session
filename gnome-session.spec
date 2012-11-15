@@ -8,7 +8,6 @@ URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.6/%{name}-%{version}.tar.xz
 Source1: gnome-authentication-agent.desktop
-Source2: gnome.desktop
 
 Patch0: gnome-session-3.3.1-llvmpipe.patch
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
@@ -108,7 +107,6 @@ desktop-file-install --vendor gnome --delete-original                   \
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/gnome/autostart
 
 install -Dp -m 644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_datadir}/gnome/autostart
-install -Dp -m 644 %{SOURCE2} ${RPM_BUILD_ROOT}%{_datadir}/xsessions/
 
 cp -p AUTHORS COPYING NEWS README $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
 
