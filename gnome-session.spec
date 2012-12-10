@@ -3,7 +3,7 @@
 Summary: GNOME session manager
 Name: gnome-session
 Version: 3.6.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.6/%{name}-%{version}.tar.xz
@@ -14,6 +14,7 @@ Patch0: gnome-session-3.3.1-llvmpipe.patch
 Patch1: gnome-session-3.3.92-nv30.patch
 Patch2: 0001-main-Set-XDG_MENU_PREFIX.patch
 Patch3: reject-shutdown-clients.patch
+Patch4: gnome-session-3.6.2-swrast.patch
 
 License: GPLv2+
 Group: User Interface/Desktops
@@ -85,6 +86,7 @@ Desktop file to add GNOME to display manager session menu.
 %patch1 -p1 -b .nv30
 %patch2 -p1 -b .set-xdg-menu-prefix
 %patch3 -p1 -b .reject-shutdown-clients
+%patch4 -p1 -b .swrast
 
 echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 
@@ -158,6 +160,11 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Mon Dec 10 2012 Adam Jackson <ajax@redhat.com> 3.6.2-3
+- gnome-session-3.6.2-swrast.patch: Allow swrast classic. On x86 this has no
+  effect since we build llvmpipe instead, but for arches where there's nothing
+  better available yet swrast is marginally less painful than softpipe.
+
 * Tue Nov 13 2012 Daniel Drake <dsd@laptop.org> - 3.6.2-2
 - Add upstream patch to fix handling of client registration during shutdown
 - Fixes slow gnome-session shutdown for maliit users
