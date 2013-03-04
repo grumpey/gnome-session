@@ -1,0 +1,50 @@
+From 42356904ef974ca8376158dddd3d36f913f793a0 Mon Sep 17 00:00:00 2001
+From: Michael Chapman <gnome-bugzilla@very.puzzling.org>
+Date: Wed, 06 Feb 2013 00:22:00 +0000
+Subject: xsmp: Re-accept clients if session shutdown is cancelled
+
+This commit makes sure that gnome-session will accept XSMP
+clients again after a user cancels shutdown.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=691513
+---
+diff -up gnome-session-3.6.2/gnome-session/gsm-manager.c.691513 gnome-session-3.6.2/gnome-session/gsm-manager.c
+--- gnome-session-3.6.2/gnome-session/gsm-manager.c.691513	2013-03-04 16:06:52.000000000 +0100
++++ gnome-session-3.6.2/gnome-session/gsm-manager.c	2013-03-04 16:08:20.626077881 +0100
+@@ -1582,6 +1582,7 @@ start_phase (GsmManager *manager)
+                 break;
+         case GSM_MANAGER_PHASE_RUNNING:
+                 possibly_show_fallback_dialog (manager);
++                gsm_xsmp_server_start_accepting_new_clients (manager->priv->xsmp_server);
+                 g_signal_emit (manager, signals[SESSION_RUNNING], 0);
+                 update_idle (manager);
+                 break;
+diff -up gnome-session-3.6.2/gnome-session/gsm-xsmp-server.c.691513 gnome-session-3.6.2/gnome-session/gsm-xsmp-server.c
+--- gnome-session-3.6.2/gnome-session/gsm-xsmp-server.c.691513	2013-03-04 16:06:52.614022514 +0100
++++ gnome-session-3.6.2/gnome-session/gsm-xsmp-server.c	2013-03-04 16:06:52.617022515 +0100
+@@ -256,6 +256,14 @@ gsm_xsmp_server_stop_accepting_new_clien
+         server->priv->stopping = TRUE;
+ }
+ 
++void
++gsm_xsmp_server_start_accepting_new_clients (GsmXsmpServer *server)
++{
++        g_return_if_fail (GSM_IS_XSMP_SERVER (server));
++        g_debug ("gsm_xsmp_server_start");
++        server->priv->stopping = FALSE;
++}
++
+ static void
+ gsm_xsmp_server_set_client_store (GsmXsmpServer *xsmp_server,
+                                   GsmStore      *store)
+diff -up gnome-session-3.6.2/gnome-session/gsm-xsmp-server.h.691513 gnome-session-3.6.2/gnome-session/gsm-xsmp-server.h
+--- gnome-session-3.6.2/gnome-session/gsm-xsmp-server.h.691513	2013-03-04 16:06:52.614022514 +0100
++++ gnome-session-3.6.2/gnome-session/gsm-xsmp-server.h	2013-03-04 16:06:52.617022515 +0100
+@@ -53,6 +53,7 @@ GType               gsm_xsmp_server_get_
+ GsmXsmpServer *     gsm_xsmp_server_new                            (GsmStore      *client_store);
+ void                gsm_xsmp_server_start                          (GsmXsmpServer *server);
+ void                gsm_xsmp_server_stop_accepting_new_clients     (GsmXsmpServer *server);
++void                gsm_xsmp_server_start_accepting_new_clients    (GsmXsmpServer *server);
+ 
+ G_END_DECLS
+ 

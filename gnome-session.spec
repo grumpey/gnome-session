@@ -3,7 +3,7 @@
 Summary: GNOME session manager
 Name: gnome-session
 Version: 3.6.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.6/%{name}-%{version}.tar.xz
@@ -15,6 +15,7 @@ Patch1: gnome-session-3.3.92-nv30.patch
 Patch2: 0001-main-Set-XDG_MENU_PREFIX.patch
 Patch3: reject-shutdown-clients.patch
 Patch4: gnome-session-3.6.2-swrast.patch
+Patch5: gnome-session-691513.patch
 
 License: GPLv2+
 Group: User Interface/Desktops
@@ -87,6 +88,7 @@ Desktop file to add GNOME to display manager session menu.
 %patch2 -p1 -b .set-xdg-menu-prefix
 %patch3 -p1 -b .reject-shutdown-clients
 %patch4 -p1 -b .swrast
+%patch5 -p1 -b .691513
 
 echo "ACLOCAL_AMFLAGS = -I m4" >> Makefile.am
 
@@ -160,6 +162,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Mon Mar  4 2013 Jan Horak <jhorak@redhat.com> - 3.6.2-4
+- Added ustream patch to fix session management handling (rhbz#894537)
+
 * Mon Dec 10 2012 Adam Jackson <ajax@redhat.com> 3.6.2-3
 - gnome-session-3.6.2-swrast.patch: Allow swrast classic. On x86 this has no
   effect since we build llvmpipe instead, but for arches where there's nothing
