@@ -10,7 +10,7 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 3.8.3
+Version: 3.8.4
 Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
@@ -152,6 +152,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Tue Jul 30 2013 Ray Strode <rstrode@redhat.com> - 3.8.4-1
+- Update to 3.8.4
+
 * Tue Jul 30 2013 Matthias Clasen <mclasen@redhat.com> - 3.8.3-1
 - Fix a crash when talking to systemd (#977575)
 
