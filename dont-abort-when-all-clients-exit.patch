@@ -1,0 +1,32 @@
+From 6e203f466118daf9941fb9c8dd64f1488dea14e7 Mon Sep 17 00:00:00 2001
+From: Colin Walters <walters@verbum.org>
+Date: Fri, 18 Oct 2013 22:15:14 +0000
+Subject: gsm-manager: Don't abort when all clients exit
+
+If all of our clients exit, remove_clients_for_connection()
+calls end_phase() which in turn invokes gsm_manager_quit() that
+checks the logout type.
+
+But at this point we only have _LOGOUT_NONE, so we end up aborting.
+It's fine to just call _quit() in this case, and this avoids us
+dumping core.
+
+This was happening to me when session startup failed for other
+reasons.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=710480
+---
+diff --git a/gnome-session/gsm-manager.c b/gnome-session/gsm-manager.c
+index 17b971c..e0d25b5 100644
+--- a/gnome-session/gsm-manager.c
++++ b/gnome-session/gsm-manager.c
+@@ -519,6 +519,7 @@ gsm_manager_quit (GsmManager *manager)
+ 
+         switch (manager->priv->logout_type) {
+         case GSM_MANAGER_LOGOUT_LOGOUT:
++        case GSM_MANAGER_LOGOUT_NONE:
+                 gsm_quit ();
+                 break;
+         case GSM_MANAGER_LOGOUT_REBOOT:
+--
+cgit v0.9.2
