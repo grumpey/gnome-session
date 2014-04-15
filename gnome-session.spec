@@ -77,6 +77,14 @@ Requires: gnome-session = %{version}-%{release}
 %description xsession
 Desktop file to add GNOME to display manager session menu.
 
+%package wayland-session
+Summary: Desktop file for wayland based gnome session
+Group: User Interface/Desktops
+Requires: gnome-session = %{version}-%{release}
+
+%description wayland-session
+Desktop file to add GNOME on wayland to display manager session menu.
+
 %prep
 %setup -q
 %patch1 -p1 -b .nv30
@@ -100,9 +108,6 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
 %find_lang %{po_package}
 
-%check
-desktop-file-validate $RPM_BUILD_ROOT%{_datadir}/applications/gnome-session-properties.desktop
-
 %post
 /sbin/ldconfig
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
@@ -122,10 +127,12 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %files xsession
 %{_datadir}/xsessions/*
 
+%files wayland-session
+%{_datadir}/wayland-sessions/*
+
 %files -f %{po_package}.lang
 %doc AUTHORS COPYING NEWS README
 %doc %{_mandir}/man*/*
-%{_datadir}/applications/gnome-session-properties.desktop
 %{_bindir}/*
 %{_libexecdir}/gnome-session-check-accelerated
 %{_libexecdir}/gnome-session-check-accelerated-helper
