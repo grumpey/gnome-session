@@ -56,6 +56,7 @@ BuildRequires: gettext
 BuildRequires: intltool
 BuildRequires: xmlto
 BuildRequires: /usr/bin/xsltproc
+BuildRequires: autoconf, automake, libtool, intltool
 
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
@@ -88,6 +89,7 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %patch3 -p1 -b .swrast
 
 %build
+autoreconf -f -i
 %configure --enable-docbook-docs                                \
 %if 0%{?with_session_selector}
            --enable-session-selector                            \
