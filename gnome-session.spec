@@ -56,7 +56,7 @@ BuildRequires: gettext
 BuildRequires: intltool
 BuildRequires: xmlto
 BuildRequires: /usr/bin/xsltproc
-BuildRequires: autoconf, automake, libtool, intltool
+BuildRequires: autoconf, automake, libtool, gnome-common
 
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
