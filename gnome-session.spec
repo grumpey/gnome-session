@@ -9,13 +9,12 @@
 
 Summary: GNOME session manager
 Name: gnome-session
-Version: 3.19.91
-Release: 2%{?dist}
+Version: 3.19.92
+Release: 1%{?dist}
 URL: http://www.gnome.org
 #VCS: git:git://git.gnome.org/gnome-session
 Source0: http://download.gnome.org/sources/gnome-session/3.19/%{name}-%{version}.tar.xz
 
-Patch0: 0001-data-switch-back-to-Xorg-by-default.patch
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
 Patch3: gnome-session-3.6.2-swrast.patch
@@ -56,7 +55,6 @@ BuildRequires: gettext
 BuildRequires: intltool
 BuildRequires: xmlto
 BuildRequires: /usr/bin/xsltproc
-BuildRequires: autoconf, automake, libtool, gnome-common
 
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
@@ -84,12 +82,10 @@ Desktop file to add GNOME on wayland to display manager session menu.
 
 %prep
 %setup -q
-%patch0 -p1 -b .xorg-by-default
 %patch1 -p1 -b .nv30
 %patch3 -p1 -b .swrast
 
 %build
-autoreconf -f -i
 %configure --enable-docbook-docs                                \
 %if 0%{?with_session_selector}
            --enable-session-selector                            \
@@ -143,6 +139,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Tue Mar 15 2016 Kalev Lember <klember@redhat.com> - 3.19.92-1
+- Update to 3.19.92
+
 * Mon Mar 07 2016 Ray Strode <rstrode@redhat.com> - 3.19.91-2
 - Revert to Xorg by default following workstation discussion
 
