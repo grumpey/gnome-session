@@ -8,8 +8,8 @@
 %endif
 
 Name: gnome-session
-Version: 3.22.0
-Release: 2%{?dist}
+Version: 3.22.1
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -136,6 +136,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Wed Oct 12 2016 Kalev Lember <klember@redhat.com> - 3.22.1-1
+- Update to 3.22.1
+
 * Tue Oct 11 2016 Adam Jackson <ajax@redhat.com> - 3.22.0-2
 - Prefer eglGetPlatformDisplay to eglGetDisplay
 
