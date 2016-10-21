@@ -1,0 +1,118 @@
+From 5c4d826edaa07e07759b2737b4f4e598d1055e65 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 11 Oct 2016 12:53:11 +0200
+Subject: [PATCH 2/3] check-accelerated: Print the renderer under Wayland as
+ well
+
+Based on sample code by Matthias Clasen <mclasen@redhat.com>
+
+We'll use this in gnome-control-center when gnome-session cannot provide
+a renderer, under Wayland, as the Wayland compositor runs after
+gnome-session's startup.
+
+If OpenGL 3 is not supported (which is required for GTK+'s GL support),
+then nothing is output.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=756914
+---
+ configure.ac                            |  2 +-
+ tools/Makefile.am                       |  6 ++++--
+ tools/gnome-session-check-accelerated.c | 27 +++++++++++++++++++++++++--
+ 3 files changed, 30 insertions(+), 5 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 38c462b..c01b60a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -85,7 +85,7 @@ PKG_CHECK_MODULES(SM, sm)
+ PKG_CHECK_MODULES(ICE, ice)
+ PKG_CHECK_MODULES(XEXT, xext xau)
+ 
+-PKG_CHECK_MODULES(GL_TEST, xcomposite gl glib-2.0)
++PKG_CHECK_MODULES(GL_TEST, xcomposite gl glib-2.0 epoxy)
+ PKG_CHECK_MODULES(GLES_TEST, egl glesv2)
+ 
+ dnl ====================================================================
+diff --git a/tools/Makefile.am b/tools/Makefile.am
+index 23cafc9..d3b8bf3 100644
+--- a/tools/Makefile.am
++++ b/tools/Makefile.am
+@@ -77,11 +77,13 @@ gnome_session_check_accelerated_SOURCES =       	\
+ gnome_session_check_accelerated_CPPFLAGS =      \
+ 	-DLIBEXECDIR=\""$(libexecdir)"\"	\
+ 	$(AM_CPPFLAGS)			        \
+-	$(GTK3_CFLAGS)
++	$(GTK3_CFLAGS)				\
++	$(GL_TEST_CFLAGS)
+ 
+ gnome_session_check_accelerated_LDADD =         \
+ 	$(GTK3_LIBS)				\
+-	$(X11_LIBS)
++	$(X11_LIBS)				\
++	$(GL_TEST_LIBS)
+ 
+ if BUILD_SESSION_SELECTOR
+ gnome_session_selector_CPPFLAGS =		\
+diff --git a/tools/gnome-session-check-accelerated.c b/tools/gnome-session-check-accelerated.c
+index 810478c..a54a34b 100644
+--- a/tools/gnome-session-check-accelerated.c
++++ b/tools/gnome-session-check-accelerated.c
+@@ -26,6 +26,7 @@
+ #include <stdlib.h>
+ 
+ #include <gtk/gtk.h>
++#include <epoxy/gl.h>
+ #include <gdk/gdkx.h>
+ #include <X11/Xatom.h>
+ #include <sys/wait.h>
+@@ -91,6 +92,26 @@ wait_for_property_notify (void)
+         return property_changed;
+ }
+ 
++static char *
++get_gtk_gles_renderer (void)
++{
++        GtkWidget *win;
++        GdkGLContext *context;
++        char *renderer = NULL;
++
++        win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
++        gtk_widget_realize (win);
++        context = gdk_window_create_gl_context (gtk_widget_get_window (win), NULL);
++        if (!context)
++                return NULL;
++        gdk_gl_context_make_current (context);
++        renderer = g_strdup ((char *) glGetString (GL_RENDERER));
++        gdk_gl_context_clear_current ();
++        g_object_unref (context);
++
++        return renderer;
++}
++
+ int
+ main (int argc, char **argv)
+ {
+@@ -103,16 +124,18 @@ main (int argc, char **argv)
+         glong is_accelerated, is_software_rendering;
+         GError *gl_error = NULL, *gles_error = NULL;
+ 
++        gtk_init (NULL, NULL);
++
+         /* gnome-session-check-accelerated gets run before X is started in the wayland
+          * case, and it currently requires X. Until we have that working, just always
+          * assume wayland will work
+          */
+         if (g_strcmp0 (g_getenv ("XDG_SESSION_TYPE"), "x11") != 0) {
++                renderer_string = get_gtk_gles_renderer ();
++                g_print ("%s", renderer_string);
+                 return 0;
+         }
+ 
+-        gtk_init (NULL, NULL);
+-
+         display = gdk_display_get_default ();
+         rootwin = gdk_x11_get_default_root_xwindow ();
+ 
+-- 
+2.9.3
+

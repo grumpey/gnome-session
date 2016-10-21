@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.22.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -22,7 +22,14 @@ Patch3: gnome-session-3.6.2-swrast.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=772421
 Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 
+# https://bugzilla.gnome.org/show_bug.cgi?id=756914
+# https://bugzilla.gnome.org/show_bug.cgi?id=773216
+Patch5: 0001-check-accelerated-Fix-warnings-on-startup.patch
+Patch6: 0002-check-accelerated-Print-the-renderer-under-Wayland-a.patch
+Patch7: 0003-tools-Don-t-read-cached-info-about-1st-GPU-when-2nd-.patch
+
 BuildRequires: pkgconfig(egl)
+BuildRequires: pkgconfig(epoxy)
 BuildRequires: pkgconfig(gl)
 BuildRequires: pkgconfig(glesv2)
 BuildRequires: pkgconfig(gnome-desktop-3.0)
@@ -46,6 +53,9 @@ BuildRequires: gettext
 BuildRequires: intltool
 BuildRequires: xmlto
 BuildRequires: /usr/bin/xsltproc
+
+# For the Wayland and dual-GPU improvements
+BuildRequires: autoconf automake libtool
 
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
@@ -83,8 +93,12 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %patch1 -p1 -b .nv30
 %patch3 -p1 -b .swrast
 %patch4 -p1 -b .platform
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
 
 %build
+autoreconf -f -i
 %configure --enable-docbook-docs                                \
 %if 0%{?with_session_selector}
            --enable-session-selector                            \
@@ -136,6 +150,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Fri Oct 21 2016 Bastien Nocera <bnocera@redhat.com> - 3.22.1-2
++ gnome-session-3.22.1-2
+- Dual-GPU and Wayland improvements
+
 * Wed Oct 12 2016 Kalev Lember <klember@redhat.com> - 3.22.1-1
 - Update to 3.22.1
 
