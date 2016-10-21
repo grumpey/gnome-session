@@ -55,7 +55,7 @@ BuildRequires: xmlto
 BuildRequires: /usr/bin/xsltproc
 
 # For the Wayland and dual-GPU improvements
-BuildRequires: autoconf automake libtool
+BuildRequires: autoconf automake libtool gnome-common
 
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
