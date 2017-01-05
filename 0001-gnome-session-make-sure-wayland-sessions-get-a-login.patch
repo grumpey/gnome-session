@@ -1,0 +1,50 @@
+From 5e36cd63e71520f829bbd77c102b64179e08992a Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 5 Jan 2017 10:02:58 -0500
+Subject: [PATCH] gnome-session: make sure wayland sessions get a login shell
+
+Users expect their shell profiles to get sourced at startup, which
+doesn't happen with wayland sessions.
+
+This commit brings back that feature, by making the gnome-shell
+wrapper script run a login shell.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=736660
+---
+ gnome-session/gnome-session.in | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/gnome-session/gnome-session.in b/gnome-session/gnome-session.in
+index 530299d..aa314f4 100644
+--- a/gnome-session/gnome-session.in
++++ b/gnome-session/gnome-session.in
+@@ -1,17 +1,25 @@
+ #!/bin/sh
+ 
+ SETTING=$(gsettings get org.gnome.system.locale region)
+ REGION=${SETTING#\'}
+ REGION=${REGION%\'}
+ 
+ if [ -n "$REGION" ]; then
+   export LC_TIME=$REGION
+   export LC_NUMERIC=$REGION
+   export LC_MONETARY=$REGION
+   export LC_MEASUREMENT=$REGION
+   export LC_PAPER=$REGION
+ fi
+ 
+-dbus-update-activation-environment --all > /dev/null 2>&1 ||:
++update_command="dbus-update-activation-environment --all --systemd > /dev/null 2>&1"
++
++if [ "$XDG_SESSION_TYPE" = "wayland" -a
++     "$XDG_SESSION_CLASS" != "greeter" -a
++     -n "$SHELL" ]; then
++  (exec -l $SHELL -c "$update_command") || eval "$update_command"
++else
++  eval "$update_command"
++fi
+ 
+ exec @libexecdir@/gnome-session-binary "$@"
+-- 
+2.10.2
+

@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.22.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -21,6 +21,7 @@ Patch1: gnome-session-3.3.92-nv30.patch
 Patch3: gnome-session-3.6.2-swrast.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=772421
 Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
+Patch5: 0001-gnome-session-make-sure-wayland-sessions-get-a-login.patch
 
 BuildRequires: pkgconfig(egl)
 BuildRequires: pkgconfig(epoxy)
@@ -84,6 +85,7 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %patch1 -p1 -b .nv30
 %patch3 -p1 -b .swrast
 %patch4 -p1 -b .platform
+%patch5 -p1 -b .run-login-shell
 
 %build
 %configure --enable-docbook-docs                                \
@@ -137,6 +139,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Thu Jan 05 2017 Ray Strode <rstrode@redhat.com> - 3.22.2-2
+- Run login shell for wayland sessions
+  Resolves: #1149905
+
 * Wed Nov 16 2016 Kalev Lember <klember@redhat.com> - 3.22.2-1
 - Update to 3.22.2
 
