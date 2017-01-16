@@ -1,0 +1,679 @@
+From fc1e34dec5241469188504208cc5b22eb1fd1291 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Fri, 13 Jan 2017 10:23:35 -0500
+Subject: [PATCH 1/3] gnome-session: update activation environment from C code,
+ instead of shell script
+
+dbus-update-activation-environment excepts certain environment
+variables, that systemd won't.  We're going to want to eventually send
+the environment to systemd, too, so we shouldn't make sure the same set
+of variables get sent to both.
+
+This commit takes the dbus-update-activation-environment call out of the
+gnome-session shell script wrapper, and instead changes the C code to do
+the export explicitly.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=736660
+---
+ gnome-session/gnome-session.in |  2 --
+ gnome-session/gsm-util.c       | 78 ++++++++++++++++++++++++++++++++++++++++++
+ gnome-session/gsm-util.h       |  2 ++
+ gnome-session/main.c           |  2 ++
+ 4 files changed, 82 insertions(+), 2 deletions(-)
+
+diff --git a/gnome-session/gnome-session.in b/gnome-session/gnome-session.in
+index 530299d..fdf7163 100644
+--- a/gnome-session/gnome-session.in
++++ b/gnome-session/gnome-session.in
+@@ -1,17 +1,15 @@
+ #!/bin/sh
+ 
+ SETTING=$(gsettings get org.gnome.system.locale region)
+ REGION=${SETTING#\'}
+ REGION=${REGION%\'}
+ 
+ if [ -n "$REGION" ]; then
+   export LC_TIME=$REGION
+   export LC_NUMERIC=$REGION
+   export LC_MONETARY=$REGION
+   export LC_MEASUREMENT=$REGION
+   export LC_PAPER=$REGION
+ fi
+ 
+-dbus-update-activation-environment --all > /dev/null 2>&1 ||:
+-
+ exec @libexecdir@/gnome-session-binary "$@"
+diff --git a/gnome-session/gsm-util.c b/gnome-session/gsm-util.c
+index e30cf91..292fa65 100644
+--- a/gnome-session/gsm-util.c
++++ b/gnome-session/gsm-util.c
+@@ -465,60 +465,138 @@ gsm_util_update_activation_environment (const char  *variable,
+         if (connection == NULL) {
+                 return FALSE;
+         }
+ 
+         g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{ss}"));
+         g_variant_builder_add (&builder, "{ss}", variable, value);
+ 
+         reply = g_dbus_connection_call_sync (connection,
+                                              "org.freedesktop.DBus",
+                                              "/org/freedesktop/DBus",
+                                              "org.freedesktop.DBus",
+                                              "UpdateActivationEnvironment",
+                                              g_variant_new ("(@a{ss})",
+                                                             g_variant_builder_end (&builder)),
+                                              NULL,
+                                              G_DBUS_CALL_FLAGS_NONE,
+                                              -1, NULL, &bus_error);
+ 
+         if (bus_error != NULL) {
+                 g_propagate_error (error, bus_error);
+         } else {
+                 environment_updated = TRUE;
+                 g_variant_unref (reply);
+         }
+ 
+         g_clear_object (&connection);
+ 
+         return environment_updated;
+ }
+ 
++gboolean
++gsm_util_export_activation_environment (GError     **error)
++{
++
++        GDBusConnection *connection;
++        gboolean         environment_updated = FALSE;
++        char           **entry_names;
++        int              i = 0;
++        GVariantBuilder  builder;
++        GRegex          *name_regex, *value_regex;
++        GVariant        *reply;
++        GError          *bus_error = NULL;
++
++        connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
++
++        if (connection == NULL) {
++                return FALSE;
++        }
++
++        name_regex = g_regex_new ("^[a-zA-Z_][a-zA-Z0-9_]*$", G_REGEX_OPTIMIZE, 0, error);
++
++        if (name_regex == NULL) {
++                return FALSE;
++        }
++
++        value_regex = g_regex_new ("^([[:blank:]]|[^[:cntrl:]])*$", G_REGEX_OPTIMIZE, 0, error);
++
++        if (value_regex == NULL) {
++                return FALSE;
++        }
++
++        g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{ss}"));
++        for (entry_names = g_listenv (); entry_names[i] != NULL; i++) {
++                const char *entry_name = entry_names[i];
++                const char *entry_value = g_getenv (entry_name);
++
++                if (!g_utf8_validate (entry_name, -1, NULL))
++                    continue;
++
++                if (!g_regex_match (name_regex, entry_name, 0, NULL))
++                    continue;
++
++                if (!g_utf8_validate (entry_value, -1, NULL))
++                    continue;
++
++                if (!g_regex_match (value_regex, entry_value, 0, NULL))
++                    continue;
++
++                g_variant_builder_add (&builder, "{ss}", entry_name, entry_value);
++        }
++        g_regex_unref (name_regex);
++        g_regex_unref (value_regex);
++
++        g_strfreev (entry_names);
++
++        reply = g_dbus_connection_call_sync (connection,
++                                             "org.freedesktop.DBus",
++                                             "/org/freedesktop/DBus",
++                                             "org.freedesktop.DBus",
++                                             "UpdateActivationEnvironment",
++                                             g_variant_new ("(@a{ss})",
++                                                            g_variant_builder_end (&builder)),
++                                             NULL,
++                                             G_DBUS_CALL_FLAGS_NONE,
++                                             -1, NULL, &bus_error);
++
++        if (bus_error != NULL) {
++                g_propagate_error (error, bus_error);
++        } else {
++                environment_updated = TRUE;
++                g_variant_unref (reply);
++        }
++
++        g_clear_object (&connection);
++
++        return environment_updated;
++}
++
+ void
+ gsm_util_setenv (const char *variable,
+                  const char *value)
+ {
+         GError *bus_error;
+ 
+         if (child_environment == NULL)
+                 child_environment = g_listenv ();
+ 
+         if (!value)
+                 child_environment = g_environ_unsetenv (child_environment, variable);
+         else
+                 child_environment = g_environ_setenv (child_environment, variable, value, TRUE);
+ 
+         bus_error = NULL;
+ 
+         /* If this fails it isn't fatal, it means some things like session
+          * management and keyring won't work in activated clients.
+          */
+         if (!gsm_util_update_activation_environment (variable, value, &bus_error)) {
+                 g_warning ("Could not make bus activated clients aware of %s=%s environment variable: %s", variable, value, bus_error->message);
+                 g_error_free (bus_error);
+         }
+ }
+ 
+ const char * const *
+ gsm_util_listenv (void)
+ {
+         return (const char * const *) child_environment;
+ 
+diff --git a/gnome-session/gsm-util.h b/gnome-session/gsm-util.h
+index 6b5e98a..b195d0b 100644
+--- a/gnome-session/gsm-util.h
++++ b/gnome-session/gsm-util.h
+@@ -24,35 +24,37 @@ G_BEGIN_DECLS
+ 
+ #define IS_STRING_EMPTY(x) ((x)==NULL||(x)[0]=='\0')
+ 
+ char *      gsm_util_find_desktop_file_for_app_name (const char *app_name,
+                                                      gboolean    look_in_saved_session,
+                                                      gboolean    autostart_first);
+ 
+ gchar      *gsm_util_get_empty_tmp_session_dir      (void);
+ 
+ const char *gsm_util_get_saved_session_dir          (void);
+ 
+ gchar**     gsm_util_get_app_dirs                   (void);
+ 
+ gchar**     gsm_util_get_autostart_dirs             (void);
+ void        gsm_util_set_autostart_dirs             (char **dirs);
+ 
+ gchar **    gsm_util_get_desktop_dirs               (gboolean include_saved_session,
+                                                      gboolean autostart_first);
+ 
+ gboolean    gsm_util_text_is_blank                  (const char *str);
+ 
+ void        gsm_util_init_error                     (gboolean    fatal,
+                                                      const char *format, ...) G_GNUC_PRINTF (2, 3);
+ 
+ char *      gsm_util_generate_startup_id            (void);
+ 
+ void        gsm_util_setenv                         (const char *variable,
+                                                      const char *value);
+ const char * const * gsm_util_listenv               (void);
+ 
++gboolean    gsm_util_export_activation_environment  (GError     **error);
++
+ void        gsm_quit                                (void);
+ 
+ G_END_DECLS
+ 
+ #endif /* __GSM_UTIL_H__ */
+diff --git a/gnome-session/main.c b/gnome-session/main.c
+index 614c342..07c2bab 100644
+--- a/gnome-session/main.c
++++ b/gnome-session/main.c
+@@ -350,60 +350,62 @@ main (int argc, char **argv)
+                         if (g_getenv ("LIBGL_ALWAYS_SOFTWARE") == NULL) {
+                                 g_setenv ("LIBGL_ALWAYS_SOFTWARE", "1", TRUE);
+                                 if (!check_gl (&error)) {
+                                         g_warning ("software acceleration check failed: %s",
+                                                    error? error->message : "");
+                                         g_clear_error (&error);
+                                 } else {
+                                         gl_failed = FALSE;
+                                 }
+                         }
+                 }
+         }
+ 
+         if (show_version) {
+                 g_print ("%s %s\n", argv [0], VERSION);
+                 exit (0);
+         }
+ 
+         if (gl_failed) {
+                 gsm_fail_whale_dialog_we_failed (FALSE, TRUE, NULL);
+                 gsm_main ();
+                 exit (1);
+         }
+ 
+         if (please_fail) {
+                 gsm_fail_whale_dialog_we_failed (TRUE, TRUE, NULL);
+                 gsm_main ();
+                 exit (1);
+         }
+ 
++        gsm_util_export_activation_environment (NULL);
++
+         {
+                 gchar *ibus_path;
+ 
+                 ibus_path = g_find_program_in_path("ibus-daemon");
+ 
+                 if (ibus_path) {
+                         const gchar *p;
+                         p = g_getenv ("QT_IM_MODULE");
+                         if (!p || !*p)
+                                 p = "ibus";
+                         gsm_util_setenv ("QT_IM_MODULE", p);
+                         p = g_getenv ("XMODIFIERS");
+                         if (!p || !*p)
+                                 p = "@im=ibus";
+                         gsm_util_setenv ("XMODIFIERS", p);
+                 }
+ 
+                 g_free (ibus_path);
+         }
+ 
+         /* Some third-party programs rely on GNOME_DESKTOP_SESSION_ID to
+          * detect if GNOME is running. We keep this for compatibility reasons.
+          */
+         gsm_util_setenv ("GNOME_DESKTOP_SESSION_ID", "this-is-deprecated");
+ 
+         /* We want to use the GNOME menus which has the designed categories.
+          */
+         gsm_util_setenv ("XDG_MENU_PREFIX", "gnome-");
+ 
+         /* Tell Qt to try to make Qt applications look like gnome
+-- 
+2.9.3
+
+
+From af65e79d63722b2f2794fbfd0db0976db5913284 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Wed, 16 Sep 2015 13:48:24 -0400
+Subject: [PATCH 2/3] gsm-util: export environment to systemd
+
+If we get passed an environment variable, send it along to the
+systemd --user session so things running in that context can pick it
+up.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=736660
+---
+ gnome-session/gsm-util.c | 132 ++++++++++++++++++++++++++++++++++++++++++++---
+ gnome-session/gsm-util.h |   3 ++
+ gnome-session/main.c     |   4 ++
+ 3 files changed, 133 insertions(+), 6 deletions(-)
+
+diff --git a/gnome-session/gsm-util.c b/gnome-session/gsm-util.c
+index 292fa65..4772c6e 100644
+--- a/gnome-session/gsm-util.c
++++ b/gnome-session/gsm-util.c
+@@ -543,61 +543,181 @@ gsm_util_export_activation_environment (GError     **error)
+                 g_variant_builder_add (&builder, "{ss}", entry_name, entry_value);
+         }
+         g_regex_unref (name_regex);
+         g_regex_unref (value_regex);
+ 
+         g_strfreev (entry_names);
+ 
+         reply = g_dbus_connection_call_sync (connection,
+                                              "org.freedesktop.DBus",
+                                              "/org/freedesktop/DBus",
+                                              "org.freedesktop.DBus",
+                                              "UpdateActivationEnvironment",
+                                              g_variant_new ("(@a{ss})",
+                                                             g_variant_builder_end (&builder)),
+                                              NULL,
+                                              G_DBUS_CALL_FLAGS_NONE,
+                                              -1, NULL, &bus_error);
+ 
+         if (bus_error != NULL) {
+                 g_propagate_error (error, bus_error);
+         } else {
+                 environment_updated = TRUE;
+                 g_variant_unref (reply);
+         }
+ 
+         g_clear_object (&connection);
+ 
+         return environment_updated;
+ }
+ 
++#ifdef HAVE_SYSTEMD
++gboolean
++gsm_util_export_user_environment (GError     **error)
++{
++
++        GDBusConnection *connection;
++        gboolean         environment_updated = FALSE;
++        char           **entries;
++        int              i = 0;
++        GVariantBuilder  builder;
++        GRegex          *regex;
++        GVariant        *reply;
++        GError          *bus_error = NULL;
++
++        connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
++
++        if (connection == NULL) {
++                return FALSE;
++        }
++
++        regex = g_regex_new ("^[a-zA-Z_][a-zA-Z0-9_]*=([[:blank:]]|[^[:cntrl:]])*$", G_REGEX_OPTIMIZE, 0, error);
++
++        if (regex == NULL) {
++                return FALSE;
++        }
++
++        g_variant_builder_init (&builder, G_VARIANT_TYPE ("as"));
++        for (entries = g_get_environ (); entries[i] != NULL; i++) {
++                const char *entry = entries[i];
++
++                if (!g_utf8_validate (entry, -1, NULL))
++                    continue;
++
++                if (!g_regex_match (regex, entry, 0, NULL))
++                    continue;
++
++                g_variant_builder_add (&builder, "s", entry);
++        }
++        g_regex_unref (regex);
++
++        g_strfreev (entries);
++
++        reply = g_dbus_connection_call_sync (connection,
++                                             "org.freedesktop.systemd1",
++                                             "/org/freedesktop/systemd1",
++                                             "org.freedesktop.systemd1.Manager",
++                                             "SetEnvironment",
++                                             g_variant_new ("(@as)",
++                                                            g_variant_builder_end (&builder)),
++                                             NULL,
++                                             G_DBUS_CALL_FLAGS_NONE,
++                                             -1, NULL, &bus_error);
++
++        if (bus_error != NULL) {
++                g_propagate_error (error, bus_error);
++        } else {
++                environment_updated = TRUE;
++                g_variant_unref (reply);
++        }
++
++        g_clear_object (&connection);
++
++        return environment_updated;
++}
++
++static gboolean
++gsm_util_update_user_environment (const char  *variable,
++                                  const char  *value,
++                                  GError     **error)
++{
++        GDBusConnection *connection;
++        gboolean         environment_updated;
++        char            *entry;
++        GVariantBuilder  builder;
++        GVariant        *reply;
++        GError          *bus_error = NULL;
++
++        environment_updated = FALSE;
++        connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
++
++        if (connection == NULL) {
++                return FALSE;
++        }
++
++        g_variant_builder_init (&builder, G_VARIANT_TYPE ("as"));
++        entry = g_strdup_printf ("%s=%s", variable, value);
++        g_variant_builder_add (&builder, "s", entry);
++        g_free (entry);
++
++        reply = g_dbus_connection_call_sync (connection,
++                                             "org.freedesktop.systemd1",
++                                             "/org/freedesktop/systemd1",
++                                             "org.freedesktop.systemd1.Manager",
++                                             "SetEnvironment",
++                                             g_variant_new ("(@as)",
++                                                            g_variant_builder_end (&builder)),
++                                             NULL,
++                                             G_DBUS_CALL_FLAGS_NONE,
++                                             -1, NULL, &bus_error);
++
++        if (bus_error != NULL) {
++                g_propagate_error (error, bus_error);
++        } else {
++                environment_updated = TRUE;
++                g_variant_unref (reply);
++        }
++
++        g_clear_object (&connection);
++
++        return environment_updated;
++}
++#endif
++
+ void
+ gsm_util_setenv (const char *variable,
+                  const char *value)
+ {
+-        GError *bus_error;
++        GError *error = NULL;
+ 
+         if (child_environment == NULL)
+                 child_environment = g_listenv ();
+ 
+         if (!value)
+                 child_environment = g_environ_unsetenv (child_environment, variable);
+         else
+                 child_environment = g_environ_setenv (child_environment, variable, value, TRUE);
+ 
+-        bus_error = NULL;
+-
+         /* If this fails it isn't fatal, it means some things like session
+          * management and keyring won't work in activated clients.
+          */
+-        if (!gsm_util_update_activation_environment (variable, value, &bus_error)) {
+-                g_warning ("Could not make bus activated clients aware of %s=%s environment variable: %s", variable, value, bus_error->message);
+-                g_error_free (bus_error);
++        if (!gsm_util_update_activation_environment (variable, value, &error)) {
++                g_warning ("Could not make bus activated clients aware of %s=%s environment variable: %s", variable, value, error->message);
++                g_clear_error (&error);
++        }
++
++#ifdef HAVE_SYSTEMD
++        /* If this fails, the system user session won't get the updated environment
++         */
++        if (!gsm_util_update_user_environment (variable, value, &error)) {
++                g_debug ("Could not make systemd aware of %s=%s environment variable: %s", variable, value, error->message);
++                g_clear_error (&error);
+         }
++#endif
+ }
+ 
+ const char * const *
+ gsm_util_listenv (void)
+ {
+         return (const char * const *) child_environment;
+ 
+ }
+diff --git a/gnome-session/gsm-util.h b/gnome-session/gsm-util.h
+index b195d0b..763cae4 100644
+--- a/gnome-session/gsm-util.h
++++ b/gnome-session/gsm-util.h
+@@ -25,36 +25,39 @@ G_BEGIN_DECLS
+ #define IS_STRING_EMPTY(x) ((x)==NULL||(x)[0]=='\0')
+ 
+ char *      gsm_util_find_desktop_file_for_app_name (const char *app_name,
+                                                      gboolean    look_in_saved_session,
+                                                      gboolean    autostart_first);
+ 
+ gchar      *gsm_util_get_empty_tmp_session_dir      (void);
+ 
+ const char *gsm_util_get_saved_session_dir          (void);
+ 
+ gchar**     gsm_util_get_app_dirs                   (void);
+ 
+ gchar**     gsm_util_get_autostart_dirs             (void);
+ void        gsm_util_set_autostart_dirs             (char **dirs);
+ 
+ gchar **    gsm_util_get_desktop_dirs               (gboolean include_saved_session,
+                                                      gboolean autostart_first);
+ 
+ gboolean    gsm_util_text_is_blank                  (const char *str);
+ 
+ void        gsm_util_init_error                     (gboolean    fatal,
+                                                      const char *format, ...) G_GNUC_PRINTF (2, 3);
+ 
+ char *      gsm_util_generate_startup_id            (void);
+ 
+ void        gsm_util_setenv                         (const char *variable,
+                                                      const char *value);
+ const char * const * gsm_util_listenv               (void);
+ 
+ gboolean    gsm_util_export_activation_environment  (GError     **error);
++#ifdef HAVE_SYSTEMD
++gboolean    gsm_util_export_user_environment        (GError     **error);
++#endif
+ 
+ void        gsm_quit                                (void);
+ 
+ G_END_DECLS
+ 
+ #endif /* __GSM_UTIL_H__ */
+diff --git a/gnome-session/main.c b/gnome-session/main.c
+index 07c2bab..ddc3240 100644
+--- a/gnome-session/main.c
++++ b/gnome-session/main.c
+@@ -352,60 +352,64 @@ main (int argc, char **argv)
+                                 if (!check_gl (&error)) {
+                                         g_warning ("software acceleration check failed: %s",
+                                                    error? error->message : "");
+                                         g_clear_error (&error);
+                                 } else {
+                                         gl_failed = FALSE;
+                                 }
+                         }
+                 }
+         }
+ 
+         if (show_version) {
+                 g_print ("%s %s\n", argv [0], VERSION);
+                 exit (0);
+         }
+ 
+         if (gl_failed) {
+                 gsm_fail_whale_dialog_we_failed (FALSE, TRUE, NULL);
+                 gsm_main ();
+                 exit (1);
+         }
+ 
+         if (please_fail) {
+                 gsm_fail_whale_dialog_we_failed (TRUE, TRUE, NULL);
+                 gsm_main ();
+                 exit (1);
+         }
+ 
+         gsm_util_export_activation_environment (NULL);
+ 
++#ifdef HAVE_SYSTEMD
++        gsm_util_export_user_environment (NULL);
++#endif
++
+         {
+                 gchar *ibus_path;
+ 
+                 ibus_path = g_find_program_in_path("ibus-daemon");
+ 
+                 if (ibus_path) {
+                         const gchar *p;
+                         p = g_getenv ("QT_IM_MODULE");
+                         if (!p || !*p)
+                                 p = "ibus";
+                         gsm_util_setenv ("QT_IM_MODULE", p);
+                         p = g_getenv ("XMODIFIERS");
+                         if (!p || !*p)
+                                 p = "@im=ibus";
+                         gsm_util_setenv ("XMODIFIERS", p);
+                 }
+ 
+                 g_free (ibus_path);
+         }
+ 
+         /* Some third-party programs rely on GNOME_DESKTOP_SESSION_ID to
+          * detect if GNOME is running. We keep this for compatibility reasons.
+          */
+         gsm_util_setenv ("GNOME_DESKTOP_SESSION_ID", "this-is-deprecated");
+ 
+         /* We want to use the GNOME menus which has the designed categories.
+          */
+         gsm_util_setenv ("XDG_MENU_PREFIX", "gnome-");
+ 
+         /* Tell Qt to try to make Qt applications look like gnome
+-- 
+2.9.3
+
+
+From 26948020d57cfe27ae8e67c8b518abe659329a0c Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 5 Jan 2017 10:02:58 -0500
+Subject: [PATCH 3/3] gnome-session: make sure wayland sessions get a login
+ shell
+
+Users expect their shell profiles to get sourced at startup, which
+doesn't happen with wayland sessions.
+
+This commit brings back that feature, by making the gnome-session
+wrapper script run a login shell.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=736660
+---
+ gnome-session/gnome-session.in | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/gnome-session/gnome-session.in b/gnome-session/gnome-session.in
+index fdf7163..ce63df5 100644
+--- a/gnome-session/gnome-session.in
++++ b/gnome-session/gnome-session.in
+@@ -1,15 +1,28 @@
+ #!/bin/sh
+ 
++if [ "x$XDG_SESSION_TYPE" = "xwayland" ] &&
++   [ "x$XDG_SESSION_CLASS" != "xgreeter" ] &&
++   [  -n "$SHELL" ] &&
++   grep -q "$SHELL" /etc/shells &&
++   ! (echo "$SHELL" | grep -q "false") &&
++   ! (echo "$SHELL" | grep -q "nologin"); then
++  if [ "$1" != '-l' ]; then
++    exec bash -c "exec -l '$SHELL' -c '$0 -l $*'"
++  else
++    shift
++  fi
++fi
++
+ SETTING=$(gsettings get org.gnome.system.locale region)
+ REGION=${SETTING#\'}
+ REGION=${REGION%\'}
+ 
+ if [ -n "$REGION" ]; then
+   export LC_TIME=$REGION
+   export LC_NUMERIC=$REGION
+   export LC_MONETARY=$REGION
+   export LC_MEASUREMENT=$REGION
+   export LC_PAPER=$REGION
+ fi
+ 
+ exec @libexecdir@/gnome-session-binary "$@"
+-- 
+2.9.3
+
