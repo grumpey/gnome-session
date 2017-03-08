@@ -8,8 +8,8 @@
 %endif
 
 Name: gnome-session
-Version: 3.22.2
-Release: 3%{?dist}
+Version: 3.22.3
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -139,6 +139,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Wed Mar 08 2017 Kalev Lember <klember@redhat.com> - 3.22.3-1
+- Update to 3.22.3
+
 * Mon Jan 16 2017 Ray Strode <rstrode@redhat.com> - 3.22.2-3
 - Unbreak login shell for wayland sessions patch
   Related: #1149905
