@@ -50,6 +50,8 @@ BuildRequires: /usr/bin/xsltproc
 # an artificial requires to make sure we get dconf, for now
 Requires: dconf
 
+Requires: gnome-shell
+
 Requires: system-logos
 # Needed for gnome-settings-daemon
 Requires: control-center-filesystem
@@ -71,6 +73,8 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description xsession
 Desktop file to add GNOME to display manager session menu.
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: xorg-x11-server-Xorg%{?_isa}
 
 %package wayland-session
 Summary: Desktop file for wayland based gnome session
