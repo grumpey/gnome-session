@@ -70,6 +70,8 @@ the other core GNOME components and handles logout and saving the session.
 %package xsession
 Summary: Desktop file for gnome-session
 Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: xorg-x11-server-Xorg%{?_isa}
+Requires: gnome-shell
 
 %description xsession
 Desktop file to add GNOME to display manager session menu.
@@ -78,6 +80,7 @@ Desktop file to add GNOME to display manager session menu.
 Summary: Desktop file for wayland based gnome session
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: xorg-x11-server-Xwayland%{?_isa}
+Requires: gnome-shell
 
 %description wayland-session
 Desktop file to add GNOME on wayland to display manager session menu.
