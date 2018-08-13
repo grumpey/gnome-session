@@ -8,13 +8,13 @@
 %endif
 
 Name: gnome-session
-Version: 3.28.1
-Release: 2%{?dist}
+Version: 3.29.90
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/3.28/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/gnome-session/3.29/%{name}-%{version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -126,6 +126,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Mon Aug 13 2018 Kalev Lember <klember@redhat.com> - 3.29.90-1
+- Update to 3.29.90
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.28.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
