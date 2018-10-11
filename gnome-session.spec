@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.30.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -62,8 +62,7 @@ Requires: control-center-filesystem
 
 Requires: gsettings-desktop-schemas >= 0.1.7
 
-# pull in dbus-x11, see bug 209924
-Requires: dbus-x11
+Requires: dbus
 
 Conflicts: gnome-settings-daemon < 3.27.90
 
@@ -130,6 +129,11 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Thu Oct 11 2018 David Herrmann <dh.herrmann@gmail.com> - 3.30.1-3
+- Reduce 'dbus-x11' dependency to 'dbus'. The xinit scripts are no longer the
+  canonical way to start dbus, but the 'dbus' package is nowadays required to
+  provide a user and system bus to its dependents.
+
 * Thu Sep 27 2018 Hans de Goede <hdegoede@redhat.com> - 3.30.1-2
 - Add downstream patches implementing the "Boot Options" menu from:
   https://wiki.gnome.org/Design/OS/BootOptions
