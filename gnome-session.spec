@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.32.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -129,6 +129,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 
 %changelog
+* Sun Jul 21 2019 Kalev Lember <klember@redhat.com> - 3.32.0-2
+- Rebuilt for libgnome-desktop soname bump
+
 * Wed Mar 13 2019 Kalev Lember <klember@redhat.com> - 3.32.0-1
 - Update to 3.32.0
 
