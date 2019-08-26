@@ -1,4 +1,4 @@
-From 10d271c9819e3b9986e50e1eede7d3c126c45ff5 Mon Sep 17 00:00:00 2001
+From 5314490a7e5ce5770059363a84e13e87f3d9669c Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 14 Aug 2018 14:49:59 +0200
 Subject: [PATCH 2/2] Fedora: Set grub boot-flags on shutdown / reboot
@@ -21,10 +21,10 @@ way (for now) by setting the menu_show_once grub bootflag in this case.
  1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/gnome-session/gsm-manager.c b/gnome-session/gsm-manager.c
-index e0f190a1..1444c553 100644
+index e0c05d82..b4d50936 100644
 --- a/gnome-session/gsm-manager.c
 +++ b/gnome-session/gsm-manager.c
-@@ -3716,14 +3716,27 @@ do_query_end_session_exit (GsmManager *manager)
+@@ -3842,14 +3842,27 @@ do_query_end_session_exit (GsmManager *manager)
                  break;
          case GSM_MANAGER_LOGOUT_REBOOT:
          case GSM_MANAGER_LOGOUT_REBOOT_INTERACT:
@@ -54,5 +54,5 @@ index e0f190a1..1444c553 100644
                  break;
          default:
 -- 
-2.19.0
+2.23.0
 

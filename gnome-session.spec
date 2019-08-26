@@ -8,7 +8,7 @@
 %endif
 
 Name: gnome-session
-Version: 3.33.4
+Version: 3.33.90
 Release: 1%{?dist}
 Summary: GNOME session manager
 
@@ -122,13 +122,19 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_libexecdir}/gnome-session-check-accelerated
 %{_libexecdir}/gnome-session-check-accelerated-gl-helper
 %{_libexecdir}/gnome-session-check-accelerated-gles-helper
+%{_libexecdir}/gnome-session-ctl
 %{_libexecdir}/gnome-session-failed
 %{_datadir}/gnome-session/
 %{_datadir}/doc/gnome-session/dbus/gnome-session.html
 %{_datadir}/GConf/gsettings/gnome-session.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
+%{_userunitdir}/gnome-session*
 
 %changelog
+* Mon Aug 26 2019 Kalev Lember <klember@redhat.com> - 3.33.90-1
+- Update to 3.33.90
+- Rebase downstream patches
+
 * Mon Aug 12 2019 Kalev Lember <klember@redhat.com> - 3.33.4-1
 - Update to 3.33.4
 

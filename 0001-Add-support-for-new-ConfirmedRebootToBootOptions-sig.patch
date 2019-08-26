@@ -1,4 +1,4 @@
-From cba2fdd2ee9fc3decd4179feeda0cb7d833f1022 Mon Sep 17 00:00:00 2001
+From 3e5779207e2bfab25978e80ac62e8af8c3685f8e Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 14 Aug 2018 14:41:43 +0200
 Subject: [PATCH 1/2] Add support for new ConfirmedRebootToBootOptions signal
@@ -28,10 +28,10 @@ for this.
  3 files changed, 42 insertions(+), 3 deletions(-)
 
 diff --git a/gnome-session/gsm-manager.c b/gnome-session/gsm-manager.c
-index 6eeea4a6..e0f190a1 100644
+index d41bdcac..e0c05d82 100644
 --- a/gnome-session/gsm-manager.c
 +++ b/gnome-session/gsm-manager.c
-@@ -109,6 +109,7 @@ typedef enum
+@@ -117,6 +117,7 @@ typedef enum
          GSM_MANAGER_LOGOUT_NONE,
          GSM_MANAGER_LOGOUT_LOGOUT,
          GSM_MANAGER_LOGOUT_REBOOT,
@@ -39,7 +39,7 @@ index 6eeea4a6..e0f190a1 100644
          GSM_MANAGER_LOGOUT_REBOOT_INTERACT,
          GSM_MANAGER_LOGOUT_SHUTDOWN,
          GSM_MANAGER_LOGOUT_SHUTDOWN_INTERACT,
-@@ -165,6 +166,7 @@ struct GsmManagerPrivate
+@@ -176,6 +177,7 @@ struct GsmManagerPrivate
          guint                   shell_end_session_dialog_confirmed_logout_id;
          guint                   shell_end_session_dialog_confirmed_shutdown_id;
          guint                   shell_end_session_dialog_confirmed_reboot_id;
@@ -47,15 +47,15 @@ index 6eeea4a6..e0f190a1 100644
  };
  
  enum {
-@@ -478,6 +480,7 @@ gsm_manager_quit (GsmManager *manager)
+@@ -490,6 +492,7 @@ gsm_manager_quit (GsmManager *manager)
                  gsm_quit ();
                  break;
          case GSM_MANAGER_LOGOUT_REBOOT:
 +        case GSM_MANAGER_LOGOUT_REBOOT_TO_BOOT_OPTIONS:
          case GSM_MANAGER_LOGOUT_REBOOT_INTERACT:
                  gsm_system_complete_shutdown (manager->priv->system);
-                 break;
-@@ -1138,6 +1141,7 @@ end_session_or_show_shell_dialog (GsmManager *manager)
+                 gsm_quit ();
+@@ -1161,6 +1164,7 @@ end_session_or_show_shell_dialog (GsmManager *manager)
                  type = GSM_SHELL_END_SESSION_DIALOG_TYPE_LOGOUT;
                  break;
          case GSM_MANAGER_LOGOUT_REBOOT:
@@ -63,7 +63,7 @@ index 6eeea4a6..e0f190a1 100644
          case GSM_MANAGER_LOGOUT_REBOOT_INTERACT:
                  type = GSM_SHELL_END_SESSION_DIALOG_TYPE_RESTART;
                  break;
-@@ -3324,6 +3328,12 @@ disconnect_shell_dialog_signals (GsmManager *manager)
+@@ -3450,6 +3454,12 @@ disconnect_shell_dialog_signals (GsmManager *manager)
                  manager->priv->shell_end_session_dialog_confirmed_reboot_id = 0;
          }
  
@@ -76,7 +76,7 @@ index 6eeea4a6..e0f190a1 100644
          if (manager->priv->shell_end_session_dialog_open_failed_id != 0) {
                  g_signal_handler_disconnect (manager->priv->shell,
                                               manager->priv->shell_end_session_dialog_open_failed_id);
-@@ -3386,6 +3396,14 @@ on_shell_end_session_dialog_confirmed_reboot (GsmShell   *shell,
+@@ -3512,6 +3522,14 @@ on_shell_end_session_dialog_confirmed_reboot (GsmShell   *shell,
          disconnect_shell_dialog_signals (manager);
  }
  
@@ -91,7 +91,7 @@ index 6eeea4a6..e0f190a1 100644
  static void
  connect_shell_dialog_signals (GsmManager *manager)
  {
-@@ -3421,6 +3439,12 @@ connect_shell_dialog_signals (GsmManager *manager)
+@@ -3547,6 +3565,12 @@ connect_shell_dialog_signals (GsmManager *manager)
                                    "end-session-dialog-confirmed-reboot",
                                    G_CALLBACK (on_shell_end_session_dialog_confirmed_reboot),
                                    manager);
@@ -104,7 +104,7 @@ index 6eeea4a6..e0f190a1 100644
  }
  
  static void
-@@ -3694,6 +3718,10 @@ do_query_end_session_exit (GsmManager *manager)
+@@ -3820,6 +3844,10 @@ do_query_end_session_exit (GsmManager *manager)
          case GSM_MANAGER_LOGOUT_REBOOT_INTERACT:
                  reboot = TRUE;
                  break;
@@ -169,5 +169,5 @@ index e236493a..b1cdd457 100644
  };
  
 -- 
-2.19.0
+2.23.0
 
