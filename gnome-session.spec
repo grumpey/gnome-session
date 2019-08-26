@@ -64,8 +64,6 @@ Requires: gsettings-desktop-schemas >= 0.1.7
 
 Requires: dbus
 
-Conflicts: gnome-settings-daemon < 3.27.90
-
 %description
 gnome-session manages a GNOME desktop or GDM login session. It starts up
 the other core GNOME components and handles logout and saving the session.
@@ -134,6 +132,7 @@ Desktop file to add GNOME on wayland to display manager session menu.
 * Mon Aug 26 2019 Kalev Lember <klember@redhat.com> - 3.33.90-1
 - Update to 3.33.90
 - Rebase downstream patches
+- Drop old versioned conflicts
 
 * Mon Aug 12 2019 Kalev Lember <klember@redhat.com> - 3.33.4-1
 - Update to 3.33.4
