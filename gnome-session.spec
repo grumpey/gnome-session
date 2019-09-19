@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.34.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -25,6 +25,7 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
 Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
+Patch7: 0001-util-Blacklist-NOTIFY_SOCKET.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -129,6 +130,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-session*
 
 %changelog
+* Thu Sep 19 2019 Debarshi Ray <rishi@fedoraproject.org> - 3.34.0-2
+- Stop NOTIFY_SOCKET from leaking into the GNOME environment
+
 * Wed Sep 11 2019 Kalev Lember <klember@redhat.com> - 3.34.0-1
 - Update to 3.34.0
 
