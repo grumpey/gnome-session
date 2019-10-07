@@ -8,8 +8,8 @@
 %endif
 
 Name: gnome-session
-Version: 3.34.0
-Release: 3%{?dist}
+Version: 3.34.1
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -25,8 +25,6 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
 Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
-Patch7: 0001-util-Blacklist-NOTIFY_SOCKET.patch
-Patch8: 0001-util-Unset-some-environment-variables-on-systemd.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -131,6 +129,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-session*
 
 %changelog
+* Mon Oct 07 2019 Kalev Lember <klember@redhat.com> - 3.34.1-1
+- Update to 3.34.1
+
 * Mon Sep 23 2019 Benjamin Berg <bberg@redhat.com> - 3.34.0-3
 - Stop certain environment variables from leaking betweens sessions
   https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/23
