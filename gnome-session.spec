@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.34.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -25,6 +25,8 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
 Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
+
+Patch10: 0001-autostart-app-Strip-blacklisted-variables-from-autos.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -129,6 +131,10 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-session*
 
 %changelog
+* Tue Oct 08 2019 Benjamin Berg <bberg@redhat.com> - 3.34.1-2
+- Add patch to strip blacklisted variables from autostart applications environment
+  https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/27
+
 * Mon Oct 07 2019 Kalev Lember <klember@redhat.com> - 3.34.1-1
 - Update to 3.34.1
 
