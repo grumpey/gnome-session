@@ -1,0 +1,35 @@
+From 2913d9829bd6088e8f521fe6ffea68c59e935a3e Mon Sep 17 00:00:00 2001
+From: Benjamin Berg <bberg@redhat.com>
+Date: Wed, 9 Oct 2019 22:38:38 +0200
+Subject: [PATCH 1/2] data: Ensure shutdown target does not keep units loaded
+
+The shutdown target has explicit conflicts on some user units, this
+means that as long as it is active, it will keep those units loaded.
+
+We could probably reverse the conflicts to prevent this from happening.
+But, it makes sense to set StopWhenUnneeded=true anyway and doing so
+also means that the corresponding units can be unloaded after logout.
+---
+ data/gnome-session-shutdown.target | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/data/gnome-session-shutdown.target b/data/gnome-session-shutdown.target
+index 84afb001..607dc6e7 100644
+--- a/data/gnome-session-shutdown.target
++++ b/data/gnome-session-shutdown.target
+@@ -16,7 +16,11 @@ After=gnome-session.target gnome-session-manager.target
+ Conflicts=gnome-session-pre.target gnome-session-initialized.target gnome-session-failed.target
+ After=gnome-session-pre.target gnome-session-initialized.target gnome-session-failed.target
+ 
+-# Could we set StopWhenUnneeded=true or would that prevent the service to start?
++# We need to make sure this unit is stopped; primarily so that the tree of
++# units that we created is completely cleaned.
++# Note that this can also be improved by reversing the conflicts above and
++# not listing them in the shutdown unit.
++StopWhenUnneeded=true
+ 
+ # We trigger a restart of DBus after reaching the shutdown target this
+ # is a workaround so that DBus services that do not connect to the
+-- 
+2.23.0
+
