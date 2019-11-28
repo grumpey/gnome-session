@@ -8,8 +8,8 @@
 %endif
 
 Name: gnome-session
-Version: 3.34.1
-Release: 3%{?dist}
+Version: 3.34.2
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -25,12 +25,6 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
 Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
-
-Patch10: 0001-autostart-app-Strip-blacklisted-variables-from-autos.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/28
-Patch20: 0001-data-Ensure-shutdown-target-does-not-keep-units-load.patch
-Patch21: 0002-data-Make-X11-services-part-of-gnome-session.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -135,6 +129,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-session*
 
 %changelog
+* Thu Nov 28 2019 Kalev Lember <klember@redhat.com> - 3.34.2-1
+- Update to 3.34.2
+
 * Fri Oct 11 2019 Benjamin Berg <bberg@redhat.com> - 3.34.1-3
 - Add patches to ensure proper unit unloading after session shutdown
   https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/28
