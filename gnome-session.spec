@@ -137,6 +137,7 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_datadir}/GConf/gsettings/gnome-session.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 %{_userunitdir}/gnome-session*
+%{_userunitdir}/gnome-launched-.scope.d/override.conf
 
 %changelog
 * Mon Dec 16 2019 Benjamin Berg <bberg@redhat.com> - 3.34.2-2
