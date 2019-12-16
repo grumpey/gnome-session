@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.34.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -25,6 +25,16 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
 Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
+
+# Not yet merged upstream but used by e.g. gnome-shell 3.34.2
+# https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/36
+Patch10: 0001-data-Add-drop-in-to-configure-launched-applications.patch
+Patch11: 0002-autostart-app-Place-launched-applications-into-a-sys.patch
+
+# Still a few discussions upstream, but this appears sane and reasonably safe
+# https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/35
+Patch20: 0001-binary-Log-a-critical-when-our-SIGTERM-SIGINT-handle.patch
+Patch21: 0002-binary-Allow-quitting-early-on-SIGTERM-SIGINT.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -127,8 +137,15 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_datadir}/GConf/gsettings/gnome-session.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 %{_userunitdir}/gnome-session*
+%{_userunitdir}/gnome-launched-.scope.d/override.conf
 
 %changelog
+* Mon Dec 16 2019 Benjamin Berg <bberg@redhat.com> - 3.34.2-2
+- Add patches to run applications in transient scopes
+  https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/36
+- Add patches to quit gnome-session quickly if gnome-shell cannot start
+  https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/35
+
 * Thu Nov 28 2019 Kalev Lember <klember@redhat.com> - 3.34.2-1
 - Update to 3.34.2
 
