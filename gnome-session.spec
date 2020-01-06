@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.34.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -140,6 +140,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/override.conf
 
 %changelog
+* Thu Jan 16 2020 Kalev Lember <klember@redhat.com> - 3.34.2-3
+- Rebuilt for libgnome-desktop soname bump
+
 * Mon Dec 16 2019 Benjamin Berg <bberg@redhat.com> - 3.34.2-2
 - Add patches to run applications in transient scopes
   https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/36
