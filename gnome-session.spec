@@ -8,13 +8,13 @@
 %endif
 
 Name: gnome-session
-Version: 3.34.2
-Release: 3%{?dist}
+Version: 3.35.3
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/3.34/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/gnome-session/3.35/%{name}-%{version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -30,11 +30,6 @@ Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
 # https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/36
 Patch10: 0001-data-Add-drop-in-to-configure-launched-applications.patch
 Patch11: 0002-autostart-app-Place-launched-applications-into-a-sys.patch
-
-# Still a few discussions upstream, but this appears sane and reasonably safe
-# https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/35
-Patch20: 0001-binary-Log-a-critical-when-our-SIGTERM-SIGINT-handle.patch
-Patch21: 0002-binary-Allow-quitting-early-on-SIGTERM-SIGINT.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -140,6 +135,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/override.conf
 
 %changelog
+* Thu Jan 16 2020 Kalev Lember <klember@redhat.com> - 3.35.3-1
+- Update to 3.35.3
+
 * Thu Jan 16 2020 Kalev Lember <klember@redhat.com> - 3.34.2-3
 - Rebuilt for libgnome-desktop soname bump
 
