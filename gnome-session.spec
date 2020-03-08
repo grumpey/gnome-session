@@ -8,13 +8,13 @@
 %endif
 
 Name: gnome-session
-Version: 3.35.3
-Release: 3%{?dist}
+Version: 3.36.0
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/3.35/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/gnome-session/3.36/%{name}-%{version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -135,6 +135,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Sun Mar 08 2020 Kalev Lember <klember@redhat.com> - 3.36.0-1
+- Update to 3.36.0
+
 * Thu Feb 20 2020 Debarshi Ray <rishi@fedoraproject.org> - 3.35.3-3
 - Own %%{_userunitdir}/gnome-launched-.scope.d
 
