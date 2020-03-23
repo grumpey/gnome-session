@@ -31,6 +31,8 @@ Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
 Patch10: 0001-data-Add-drop-in-to-configure-launched-applications.patch
 Patch11: 0002-autostart-app-Place-launched-applications-into-a-sys.patch
 
+Patch20: 0001-util-Unset-GNOME_SETUP_DISPLAY-at-login-time.patch
+
 BuildRequires: meson
 BuildRequires: gcc
 BuildRequires: pkgconfig(egl)
