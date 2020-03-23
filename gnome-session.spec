@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.36.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -135,6 +135,10 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Mon Mar 23 2020 Ray Strode <rstrode@redhat.com> - 3.36.0-2
+- Apply patch from upstream to allow Xorg after wayland.
+  Resolves: #1815487
+
 * Sun Mar 08 2020 Kalev Lember <klember@redhat.com> - 3.36.0-1
 - Update to 3.36.0
 
