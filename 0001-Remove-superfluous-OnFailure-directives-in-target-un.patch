@@ -1,0 +1,118 @@
+From 11ae5b4cf00e44ba4024506835bd7cafdbf5f023 Mon Sep 17 00:00:00 2001
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Date: Wed, 1 Apr 2020 03:11:01 +0530
+Subject: [PATCH] Remove superfluous OnFailure= directives in target units
+
+systemd's target units can never be in the failed state, they only have mapping for inactive and active.
+---
+ data/gnome-session-failed.target      | 2 --
+ data/gnome-session-initialized.target | 2 --
+ data/gnome-session-pre.target         | 2 --
+ data/gnome-session-wayland.target     | 3 ---
+ data/gnome-session-x11.target         | 3 ---
+ data/gnome-session-x11@.target        | 2 --
+ data/gnome-session.target             | 2 --
+ data/gnome-session@.target            | 2 --
+ 8 files changed, 18 deletions(-)
+
+diff --git a/data/gnome-session-failed.target b/data/gnome-session-failed.target
+index 3ad2eb19..5296762d 100644
+--- a/data/gnome-session-failed.target
++++ b/data/gnome-session-failed.target
+@@ -1,7 +1,5 @@
+ [Unit]
+ Description=GNOME Session Failed
+-OnFailure=gnome-session-shutdown.target
+-OnFailureJobMode=replace-irreversibly
+ 
+ # We need an initialized session
+ Requisite=gnome-session-initialized.target
+diff --git a/data/gnome-session-initialized.target b/data/gnome-session-initialized.target
+index 3ef2ecfe..b7712578 100644
+--- a/data/gnome-session-initialized.target
++++ b/data/gnome-session-initialized.target
+@@ -1,7 +1,5 @@
+ [Unit]
+ Description=GNOME Session is initialized
+-OnFailure=gnome-session-shutdown.target
+-OnFailureJobMode=replace-irreversibly
+ DefaultDependencies=no
+ RefuseManualStart=yes
+ RefuseManualStop=yes
+diff --git a/data/gnome-session-pre.target b/data/gnome-session-pre.target
+index b6cad85c..3e6d0831 100644
+--- a/data/gnome-session-pre.target
++++ b/data/gnome-session-pre.target
+@@ -1,7 +1,5 @@
+ [Unit]
+ Description=Tasks to be run before GNOME Session starts
+-OnFailure=gnome-session-shutdown.target
+-OnFailureJobMode=replace-irreversibly
+ DefaultDependencies=no
+ RefuseManualStart=yes
+ RefuseManualStop=yes
+diff --git a/data/gnome-session-wayland.target b/data/gnome-session-wayland.target
+index 8ddc97d0..a0f18517 100644
+--- a/data/gnome-session-wayland.target
++++ b/data/gnome-session-wayland.target
+@@ -1,8 +1,5 @@
+ [Unit]
+ Description=GNOME Wayland Session
+-# On wayland all is lost, do a shutdown
+-OnFailure=gnome-session-shutdown.target
+-OnFailureJobMode=replace-irreversibly
+ # Avoid default After/Before rules
+ DefaultDependencies=no
+ 
+diff --git a/data/gnome-session-x11.target b/data/gnome-session-x11.target
+index 52ce6aff..3c0c18ef 100644
+--- a/data/gnome-session-x11.target
++++ b/data/gnome-session-x11.target
+@@ -1,8 +1,5 @@
+ [Unit]
+ Description=GNOME X11 Session
+-# On X11, try to show the fail screen
+-OnFailure=gnome-session-failed.target
+-OnFailureJobMode=replace
+ # Avoid default After/Before rules
+ DefaultDependencies=no
+ 
+diff --git a/data/gnome-session-x11@.target b/data/gnome-session-x11@.target
+index ce5879b2..663040ee 100644
+--- a/data/gnome-session-x11@.target
++++ b/data/gnome-session-x11@.target
+@@ -1,7 +1,5 @@
+ [Unit]
+ Description=GNOME X11 Session (session: %i)
+-OnFailure=gnome-session-failed.target
+-OnFailureJobMode=replace
+ DefaultDependencies=no
+ # Start happens explicitly
+ RefuseManualStart=no
+diff --git a/data/gnome-session.target b/data/gnome-session.target
+index ea305558..e8d228e0 100644
+--- a/data/gnome-session.target
++++ b/data/gnome-session.target
+@@ -1,7 +1,5 @@
+ [Unit]
+ Description=GNOME Session
+-OnFailure=gnome-session-failed.target
+-OnFailureJobMode=replace
+ DefaultDependencies=no
+ RefuseManualStart=yes
+ RefuseManualStop=yes
+diff --git a/data/gnome-session@.target b/data/gnome-session@.target
+index 536d9c0f..f7df8637 100644
+--- a/data/gnome-session@.target
++++ b/data/gnome-session@.target
+@@ -1,7 +1,5 @@
+ [Unit]
+ Description=GNOME Session (session: %i)
+-OnFailure=gnome-session-failed.target
+-OnFailureJobMode=replace
+ DefaultDependencies=no
+ RefuseManualStart=yes
+ RefuseManualStop=yes
+-- 
+2.26.2
+

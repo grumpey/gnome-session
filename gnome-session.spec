@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.36.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -31,7 +31,9 @@ Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
 Patch10: 0001-data-Add-drop-in-to-configure-launched-applications.patch
 Patch11: 0002-autostart-app-Place-launched-applications-into-a-sys.patch
 
+# Patches from upstream
 Patch20: 0001-util-Unset-GNOME_SETUP_DISPLAY-at-login-time.patch
+Patch21: 0001-Remove-superfluous-OnFailure-directives-in-target-un.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -137,6 +139,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* wed May 20 2020 FeRD (Frank Dana) <ferdnyc@gmail.com> - 3.36.0-3
+- Apply upstream patch to silence systemd messages about target units
+
 * Mon Mar 23 2020 Ray Strode <rstrode@redhat.com> - 3.36.0-2
 - Apply patch from upstream to allow Xorg after wayland.
   Resolves: #1815487
