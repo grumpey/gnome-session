@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.36.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -137,6 +137,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.36.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Mon Mar 23 2020 Ray Strode <rstrode@redhat.com> - 3.36.0-2
 - Apply patch from upstream to allow Xorg after wayland.
   Resolves: #1815487
