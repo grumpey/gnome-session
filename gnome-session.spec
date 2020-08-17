@@ -8,13 +8,13 @@
 %endif
 
 Name: gnome-session
-Version: 3.36.0
-Release: 4%{?dist}
+Version: 3.37.0
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/3.36/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/gnome-session/3.37/%{name}-%{version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -25,13 +25,6 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
 Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
-
-# Not yet merged upstream but used by e.g. gnome-shell 3.34.2
-# https://gitlab.gnome.org/GNOME/gnome-session/merge_requests/36
-Patch10: 0001-data-Add-drop-in-to-configure-launched-applications.patch
-Patch11: 0002-autostart-app-Place-launched-applications-into-a-sys.patch
-
-Patch20: 0001-util-Unset-GNOME_SETUP_DISPLAY-at-login-time.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -137,6 +130,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Mon Aug 17 2020 Kalev Lember <klember@redhat.com> - 3.37.0-1
+- Update to 3.37.0
+
 * Sat Aug 01 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.36.0-4
 - Second attempt - Rebuilt for
   https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
