@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.37.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -21,10 +21,9 @@ Patch1: gnome-session-3.3.92-nv30.patch
 Patch3: gnome-session-3.6.2-swrast.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=772421
 Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
-# Implement https://wiki.gnome.org/Design/OS/BootOptions
+# For https://fedoraproject.org/w/index.php?title=Changes/HiddenGrubMenu
 # This should go upstream once systemd has a generic interface for this
-Patch5: 0001-Add-support-for-new-ConfirmedRebootToBootOptions-sig.patch
-Patch6: 0002-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
+Patch5: 0001-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -130,6 +129,10 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Thu Sep  3 2020 Hans de Goede <hdegoede@redhat.com> - 3.37.0-2
+- Remove downstream patch for the "Boot Options" menu
+- Simplify downstream patch for the "Hidden Grub Menu" integration
+
 * Mon Aug 17 2020 Kalev Lember <klember@redhat.com> - 3.37.0-1
 - Update to 3.37.0
 
