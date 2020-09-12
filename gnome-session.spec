@@ -8,13 +8,13 @@
 %endif
 
 Name: gnome-session
-Version: 3.37.0
-Release: 2%{?dist}
+Version: 3.38.0
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/3.37/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/gnome-session/3.38/%{name}-%{version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -129,6 +129,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Sat Sep 12 2020 Kalev Lember <klember@redhat.com> - 3.38.0-1
+- Update to 3.38.0
+
 * Thu Sep  3 2020 Hans de Goede <hdegoede@redhat.com> - 3.37.0-2
 - Remove downstream patch for the "Boot Options" menu
 - Simplify downstream patch for the "Hidden Grub Menu" integration
