@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 3.38.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -79,7 +79,7 @@ Desktop file to add GNOME to display manager session menu.
 %package wayland-session
 Summary: Desktop file for wayland based gnome session
 Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: xorg-x11-server-Xwayland%{?_isa}
+Requires: xorg-x11-server-Xwayland%{?_isa} >= 1.20.99.1
 Requires: gnome-shell
 
 %description wayland-session
@@ -129,6 +129,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Mon Feb  1 2021 Olivier Fourdan <ofourdan@redhat.com> -  3.38.0-3
+- Add dependency on Xwayland standalone package
+
 * Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 3.38.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
