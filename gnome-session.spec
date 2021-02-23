@@ -1,5 +1,3 @@
-%global _changelog_trimtime %(date +%s -d "1 year ago")
-
 %define po_package gnome-session-40
 
 %if 0%{?fedora}
