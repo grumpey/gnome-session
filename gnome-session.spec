@@ -1,20 +1,22 @@
 %global _changelog_trimtime %(date +%s -d "1 year ago")
 
-%define po_package gnome-session-3.0
+%define po_package gnome-session-40
 
 %if 0%{?fedora}
 %else
 %global with_session_selector 1
 %endif
 
+%global tarball_version %%(echo %{version} | tr '~' '.')
+
 Name: gnome-session
-Version: 3.38.0
-Release: 3%{?dist}
+Version: 40~beta
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/3.38/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/gnome-session/40/%{name}-%{tarball_version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -86,7 +88,7 @@ Requires: gnome-shell
 Desktop file to add GNOME on wayland to display manager session menu.
 
 %prep
-%autosetup -p1
+%autosetup -p1 -n %{name}-%{tarball_version}
 
 %build
 %meson                                                          \
@@ -129,6 +131,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Tue Feb 23 2021 Kalev Lember <klember@redhat.com> - 40~beta-1
+- Update to 40.beta
+
 * Mon Feb  1 2021 Olivier Fourdan <ofourdan@redhat.com> -  3.38.0-3
 - Add dependency on Xwayland standalone package
 
