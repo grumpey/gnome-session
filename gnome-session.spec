@@ -13,8 +13,8 @@ Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
-URL: http://www.gnome.org
-Source0: http://download.gnome.org/sources/gnome-session/40/%{name}-%{tarball_version}.tar.xz
+URL: https://gitlab.gnome.org/GNOME/gnome-session
+Source0: https://download.gnome.org/sources/gnome-session/40/%{name}-%{tarball_version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -131,6 +131,7 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %changelog
 * Tue Feb 23 2021 Kalev Lember <klember@redhat.com> - 40~beta-1
 - Update to 40.beta
+- Update upstream URLs
 
 * Mon Feb  1 2021 Olivier Fourdan <ofourdan@redhat.com> -  3.38.0-3
 - Add dependency on Xwayland standalone package
