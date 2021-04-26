@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 40.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -24,6 +24,9 @@ Patch4: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # For https://fedoraproject.org/w/index.php?title=Changes/HiddenGrubMenu
 # This should go upstream once systemd has a generic interface for this
 Patch5: 0001-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
+
+# Do not auto-start the GNOME Shell screensaver service
+Patch6: https://gitlab.gnome.org/GNOME/gnome-session/-/merge_requests/67.patch
 
 BuildRequires: meson
 BuildRequires: gcc
@@ -129,6 +132,10 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Mon Apr 26 2021 Benjamin Berg <bberg@redhat.com> - 40.0-2
+- Add patch to not start GNOME Shell screensaver service
+  Related: #1937073
+
 * Tue Apr 13 2021 Kalev Lember <klember@redhat.com> - 40.0-1
 - Update to 40.0
 
