@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 40.1.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -62,6 +62,9 @@ Requires: control-center-filesystem
 Requires: gsettings-desktop-schemas >= 0.1.7
 
 Requires: dbus
+
+Patch0: 0001-data-Install-GNOME-on-Wayland-session-for-X11-prefer.patch
+
 
 %description
 gnome-session manages a GNOME desktop or GDM login session. It starts up
@@ -129,6 +132,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Tue Oct 12 2021 Ray Strode <rstrode@redhat.com> - 40.1.1-3
+- Install gnome-wayland session
+
 * Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 40.1.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
