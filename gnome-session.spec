@@ -1,4 +1,4 @@
-%define po_package gnome-session-40
+%define po_package gnome-session-41
 
 %if 0%{?fedora}
 %else
@@ -8,13 +8,13 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name: gnome-session
-Version: 40.1.1
-Release: 3%{?dist}
+Version: 41.3
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: https://gitlab.gnome.org/GNOME/gnome-session
-Source0: https://download.gnome.org/sources/gnome-session/40/%{name}-%{tarball_version}.tar.xz
+Source0: https://download.gnome.org/sources/gnome-session/41/%{name}-%{tarball_version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -62,8 +62,6 @@ Requires: control-center-filesystem
 Requires: gsettings-desktop-schemas >= 0.1.7
 
 Requires: dbus
-
-Patch0: 0001-data-Install-GNOME-on-Wayland-session-for-X11-prefer.patch
 
 
 %description
@@ -132,6 +130,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Wed Jan 12 2022 David King <amigadave@amigadave.com> - 41.3-1
+- Update to 41.3
+
 * Tue Oct 12 2021 Ray Strode <rstrode@redhat.com> - 40.1.1-3
 - Install gnome-wayland session
 
