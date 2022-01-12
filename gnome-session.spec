@@ -8,7 +8,7 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name: gnome-session
-Version: 40.1.1
+Version: 40.8
 Release: 1%{?dist}
 Summary: GNOME session manager
 
@@ -129,6 +129,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Wed Jan 12 2022 David King <amigadave@amigadave.com> - 40.8-1
+- Update to 40.8
+
 * Wed Apr 28 2021 Kalev Lember <klember@redhat.com> - 40.1.1-1
 - Update to 40.1.1
 
