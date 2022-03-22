@@ -1,4 +1,4 @@
-%define po_package gnome-session-41
+%define po_package gnome-session-42
 
 %if 0%{?fedora}
 %else
@@ -8,8 +8,8 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name: gnome-session
-Version: 41.3
-Release: 2%{?dist}
+Version: 42.0
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -114,14 +114,14 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %files -f %{po_package}.lang
 %doc AUTHORS NEWS README
 %license COPYING
-%doc %{_mandir}/man*/*
-%{_bindir}/*
+%{_bindir}/gnome-session*
 %{_libexecdir}/gnome-session-binary
 %{_libexecdir}/gnome-session-check-accelerated
 %{_libexecdir}/gnome-session-check-accelerated-gl-helper
 %{_libexecdir}/gnome-session-check-accelerated-gles-helper
 %{_libexecdir}/gnome-session-ctl
 %{_libexecdir}/gnome-session-failed
+%{_mandir}/man1/gnome-session*1.*
 %{_datadir}/gnome-session/
 %{_datadir}/doc/gnome-session/dbus/gnome-session.html
 %{_datadir}/GConf/gsettings/gnome-session.convert
@@ -130,6 +130,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Tue Mar 22 2022 David King <amigadave@amigadave.com> - 42.0-1
+- Update to 42.0
+
 * Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 41.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
