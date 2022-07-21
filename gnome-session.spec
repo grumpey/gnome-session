@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 42.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -130,6 +130,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 42.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
 * Wed Jul 20 2022 Kalev Lember <klember@redhat.com> - 42.0-2
 - Rebuilt for libgnome-desktop soname bump
 
