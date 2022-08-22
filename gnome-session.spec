@@ -9,7 +9,7 @@
 
 Name: gnome-session
 Version: 42.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
@@ -36,6 +36,7 @@ BuildRequires: pkgconfig(libsystemd)
 BuildRequires: pkgconfig(ice)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(sm)
+BuildRequires: pkgconfig(systemd)
 BuildRequires: pkgconfig(x11)
 BuildRequires: pkgconfig(xau)
 BuildRequires: pkgconfig(xcomposite)
@@ -130,6 +131,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Mon Aug 22 2022 Kalev Lember <klember@redhat.com> - 42.0-4
+- Add missing systemd build dep
+
 * Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 42.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 
