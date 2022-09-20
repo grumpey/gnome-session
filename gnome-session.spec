@@ -1,4 +1,4 @@
-%define po_package gnome-session-42
+%define po_package gnome-session-43
 
 %if 0%{?fedora}
 %else
@@ -8,13 +8,13 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name: gnome-session
-Version: 42.0
-Release: 4%{?dist}
+Version: 43.0
+Release: 1%{?dist}
 Summary: GNOME session manager
 
 License: GPLv2+
 URL: https://gitlab.gnome.org/GNOME/gnome-session
-Source0: https://download.gnome.org/sources/gnome-session/41/%{name}-%{tarball_version}.tar.xz
+Source0: https://download.gnome.org/sources/gnome-session/43/%{name}-%{tarball_version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch1: gnome-session-3.3.92-nv30.patch
@@ -131,6 +131,9 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_userunitdir}/gnome-launched-.scope.d/
 
 %changelog
+* Tue Sep 20 2022 Kalev Lember <klember@redhat.com> - 43.0-1
+- Update to 43.0
+
 * Mon Aug 22 2022 Kalev Lember <klember@redhat.com> - 42.0-4
 - Add missing systemd build dep
 
