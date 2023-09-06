@@ -1,0 +1,336 @@
+From 6eb49bc7bc7e3362343a5e8fff4050d794a4cef5 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Wed, 6 Sep 2023 13:57:28 -0400
+Subject: [PATCH] main: Fix crash if gnome-session is started more than once
+
+gnome-session is started inside a running session it will lead
+to the session crashing. That is because it hijacks the monitoring
+fifo, and as soon as the nested instance exists, the systemd services
+think the outer session is over.
+
+This commit checks for the nested case and exits.
+---
+ gnome-session/gsm-util.c | 70 ++++++++++++++++++++++++++++++++++++++++
+ gnome-session/gsm-util.h |  2 ++
+ gnome-session/main.c     | 55 ++++++++++++++++++-------------
+ 3 files changed, 105 insertions(+), 22 deletions(-)
+
+diff --git a/gnome-session/gsm-util.c b/gnome-session/gsm-util.c
+index f2752573..f627cd6b 100644
+--- a/gnome-session/gsm-util.c
++++ b/gnome-session/gsm-util.c
+@@ -726,60 +726,130 @@ gsm_util_update_user_environment (const char  *variable,
+         }
+ 
+         g_variant_builder_init (&builder, G_VARIANT_TYPE ("as"));
+         entry = g_strdup_printf ("%s=%s", variable, value);
+         g_variant_builder_add (&builder, "s", entry);
+         g_free (entry);
+ 
+         reply = g_dbus_connection_call_sync (connection,
+                                              "org.freedesktop.systemd1",
+                                              "/org/freedesktop/systemd1",
+                                              "org.freedesktop.systemd1.Manager",
+                                              "SetEnvironment",
+                                              g_variant_new ("(@as)",
+                                                             g_variant_builder_end (&builder)),
+                                              NULL,
+                                              G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                              -1, NULL, &bus_error);
+ 
+         if (bus_error != NULL) {
+                 g_propagate_error (error, bus_error);
+         } else {
+                 environment_updated = TRUE;
+                 g_variant_unref (reply);
+         }
+ 
+         g_clear_object (&connection);
+ 
+         return environment_updated;
+ }
+ 
++gboolean
++gsm_util_systemd_unit_is_active (const char  *unit,
++                                 GError     **error)
++{
++        g_autoptr(GDBusProxy) proxy = NULL;
++        g_autoptr(GVariant) result = NULL;
++        g_autofree gchar *object_path = NULL;
++        g_autofree gchar *active_state = NULL;
++        g_autoptr(GDBusProxy) unit_proxy = NULL;
++
++        proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
++                                               G_DBUS_PROXY_FLAGS_NONE,
++                                               NULL,
++                                               "org.freedesktop.systemd1",
++                                               "/org/freedesktop/systemd1",
++                                               "org.freedesktop.systemd1.Manager",
++                                               NULL,
++                                               error);
++
++        if (proxy == NULL) {
++                return FALSE;
++        }
++
++        result = g_dbus_proxy_call_sync (proxy,
++                                         "GetUnit",
++                                         g_variant_new ("(s)", unit),
++                                         G_DBUS_CALL_FLAGS_NONE,
++                                         -1,
++                                         NULL,
++                                         error);
++
++        if (result == NULL) {
++                if (error && *error) {
++                        g_autofree char *remote_error = g_dbus_error_get_remote_error (*error);
++
++                        if (g_strcmp0 (remote_error, "org.freedesktop.systemd1.NoSuchUnit") == 0) {
++                                g_clear_error (error);
++                        }
++                }
++                return FALSE;
++        }
++
++        g_variant_get (result, "(o)", &object_path);
++        g_clear_pointer (&result, g_variant_unref);
++
++        unit_proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
++                                                    G_DBUS_PROXY_FLAGS_NONE,
++                                                    NULL,
++                                                    "org.freedesktop.systemd1",
++                                                    object_path,
++                                                    "org.freedesktop.systemd1.Unit",
++                                                    NULL,
++                                                    error);
++
++        if (unit_proxy == NULL) {
++            return FALSE;
++        }
++
++        result = g_dbus_proxy_get_cached_property (unit_proxy, "ActiveState");
++
++        if (result == NULL) {
++                g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_PROPERTY, "Error getting ActiveState property");
++                return FALSE;
++        }
++
++        g_variant_get (result, "s", &active_state);
++
++        return g_str_equal (active_state, "active");
++}
++
+ gboolean
+ gsm_util_start_systemd_unit (const char  *unit,
+                              const char  *mode,
+                              GError     **error)
+ {
+         g_autoptr(GDBusConnection) connection = NULL;
+         g_autoptr(GVariant)        reply = NULL;
+         GError          *bus_error = NULL;
+ 
+         connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
+ 
+         if (connection == NULL)
+                 return FALSE;
+ 
+         reply = g_dbus_connection_call_sync (connection,
+                                              "org.freedesktop.systemd1",
+                                              "/org/freedesktop/systemd1",
+                                              "org.freedesktop.systemd1.Manager",
+                                              "StartUnit",
+                                              g_variant_new ("(ss)",
+                                                             unit, mode),
+                                              NULL,
+                                              G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                              -1, NULL, &bus_error);
+ 
+         if (bus_error != NULL) {
+                 g_propagate_error (error, bus_error);
+                 return FALSE;
+         }
+ 
+diff --git a/gnome-session/gsm-util.h b/gnome-session/gsm-util.h
+index bc26a21e..9bba07ed 100644
+--- a/gnome-session/gsm-util.h
++++ b/gnome-session/gsm-util.h
+@@ -28,42 +28,44 @@ char *      gsm_util_find_desktop_file_for_app_name (const char *app_name,
+                                                      gboolean    look_in_saved_session,
+                                                      gboolean    autostart_first);
+ 
+ gchar      *gsm_util_get_empty_tmp_session_dir      (void);
+ 
+ const char *gsm_util_get_saved_session_dir          (void);
+ 
+ gchar**     gsm_util_get_app_dirs                   (void);
+ 
+ gchar**     gsm_util_get_autostart_dirs             (void);
+ void        gsm_util_set_autostart_dirs             (char **dirs);
+ 
+ gchar **    gsm_util_get_desktop_dirs               (gboolean include_saved_session,
+                                                      gboolean autostart_first);
+ 
+ gboolean    gsm_util_text_is_blank                  (const char *str);
+ 
+ void        gsm_util_init_error                     (gboolean    fatal,
+                                                      const char *format, ...) G_GNUC_PRINTF (2, 3);
+ 
+ char *      gsm_util_generate_startup_id            (void);
+ 
+ void        gsm_util_setenv                         (const char *variable,
+                                                      const char *value);
+ const char * const * gsm_util_listenv               (void);
+ const char * const * gsm_util_get_variable_blacklist(void);
+ 
+ gboolean    gsm_util_export_activation_environment  (GError     **error);
+ #ifdef HAVE_SYSTEMD
+ gboolean    gsm_util_export_user_environment        (GError     **error);
++gboolean    gsm_util_systemd_unit_is_active         (const char  *unit,
++                                                     GError     **error);
+ gboolean    gsm_util_start_systemd_unit             (const char  *unit,
+                                                      const char  *mode,
+                                                      GError     **error);
+ gboolean    gsm_util_systemd_reset_failed           (GError     **error);
+ 
+ #endif
+ 
+ void        gsm_quit                                (void);
+ 
+ G_END_DECLS
+ 
+ #endif /* __GSM_UTIL_H__ */
+diff --git a/gnome-session/main.c b/gnome-session/main.c
+index 3ae85225..db8fd97a 100644
+--- a/gnome-session/main.c
++++ b/gnome-session/main.c
+@@ -527,94 +527,105 @@ main (int argc, char **argv)
+                 gsm_util_set_autostart_dirs (env_override_autostart_dirs_v);
+         } else {
+                 gsm_util_set_autostart_dirs (override_autostart_dirs);
+ 
+                 /* Export the override autostart dirs parameter to the environment
+                  * in case we are running on systemd. */
+                 if (override_autostart_dirs) {
+                         g_autofree char *autostart_dirs = NULL;
+                         autostart_dirs = g_strjoinv (":", override_autostart_dirs);
+                         g_setenv ("GNOME_SESSION_AUTOSTART_DIR", autostart_dirs, TRUE);
+                 }
+         }
+ 
+         gsm_util_export_activation_environment (&error);
+         if (error) {
+                 g_warning ("Failed to upload environment to DBus: %s", error->message);
+                 g_clear_error (&error);
+         }
+ 
+         session_name = opt_session_name;
+ 
+ #ifdef HAVE_SYSTEMD
+         gsm_util_export_user_environment (&error);
+         if (error && !g_getenv ("RUNNING_UNDER_GDM"))
+                 g_warning ("Failed to upload environment to systemd: %s", error->message);
+         g_clear_error (&error);
+ #endif
+ 
+ #ifdef ENABLE_SYSTEMD_SESSION
+         if (use_systemd && !systemd_service) {
+-                g_autofree gchar *gnome_session_target;
+-                const gchar *session_type;
++                const gchar *session_type = NULL;
++                g_autofree gchar *gnome_session_target = NULL;
+ 
+                 session_type = g_getenv ("XDG_SESSION_TYPE");
+ 
+                 /* We really need to resolve the session name at this point,
+                  * which requires talking to GSettings internally. */
+                 if (IS_STRING_EMPTY (session_name)) {
+                         session_name = _gsm_manager_get_default_session (NULL);
+                 }
+ 
+-                /* Reset all failed units; we are going to start a lof ot things and
+-                 * really do not want to run into errors because units have failed
+-                 * in a previous session
+-                 */
+-                gsm_util_systemd_reset_failed (&error);
+-                if (error && !g_getenv ("RUNNING_UNDER_GDM"))
+-                        g_warning ("Failed to reset failed state of units: %s", error->message);
+-                g_clear_error (&error);
+-
+                 /* We don't escape the name (i.e. we leave any '-' intact). */
+                 gnome_session_target = g_strdup_printf ("gnome-session-%s@%s.target", session_type, session_name);
+-                if (gsm_util_start_systemd_unit (gnome_session_target, "fail", &error)) {
+-                        /* We started the unit, open fifo and sleep forever. */
+-                        systemd_leader_run ();
+-                        exit(0);
+-                }
+ 
+-                /* We could not start the unit, fall back. */
+-                if (g_getenv ("RUNNING_UNDER_GDM"))
+-                        g_message ("Falling back to non-systemd startup procedure. This is expected to happen for GDM sessions.");
+-                else
+-                        g_warning ("Falling back to non-systemd startup procedure due to error: %s", error->message);
+-                g_clear_error (&error);
++                if (!gsm_util_systemd_unit_is_active (gnome_session_target, &error)) {
++                        if (error != NULL) {
++                                g_warning ("Could not check if unit %s is active: %s",
++                                           gnome_session_target, error->message);
++                                g_clear_error (&error);
++                        }
++                        /* Reset all failed units; we are going to start a lof ot things and
++                         * really do not want to run into errors because units have failed
++                         * in a previous session
++                         */
++                        gsm_util_systemd_reset_failed (&error);
++                        if (error && !g_getenv ("RUNNING_UNDER_GDM"))
++                                g_warning ("Failed to reset failed state of units: %s", error->message);
++                        g_clear_error (&error);
++
++                        if (gsm_util_start_systemd_unit (gnome_session_target, "fail", &error)) {
++                                /* We started the unit, open fifo and sleep forever. */
++                                systemd_leader_run ();
++                                exit (0);
++                        }
++
++                        /* We could not start the unit, fall back. */
++                        if (g_getenv ("RUNNING_UNDER_GDM"))
++                                g_message ("Falling back to non-systemd startup procedure. This is expected to happen for GDM sessions.");
++                        else
++                                g_warning ("Falling back to non-systemd startup procedure due to error: %s", error->message);
++                        g_clear_error (&error);
++                } else {
++                        g_warning ("Session manager already running!");
++                        exit (1);
++                }
+         }
+ #endif /* ENABLE_SYSTEMD_SESSION */
+ 
+         {
+                 gchar *ibus_path;
+ 
+                 ibus_path = g_find_program_in_path("ibus-daemon");
+ 
+                 if (ibus_path) {
+                         const gchar *p;
+                         p = g_getenv ("QT_IM_MODULE");
+                         if (!p || !*p)
+                                 p = "ibus";
+                         gsm_util_setenv ("QT_IM_MODULE", p);
+                         p = g_getenv ("XMODIFIERS");
+                         if (!p || !*p)
+                                 p = "@im=ibus";
+                         gsm_util_setenv ("XMODIFIERS", p);
+                 }
+ 
+                 g_free (ibus_path);
+         }
+ 
+         /* We want to use the GNOME menus which has the designed categories.
+          */
+         gsm_util_setenv ("XDG_MENU_PREFIX", "gnome-");
+ 
+         /* Talk to logind before acquiring a name, since it does synchronous
+          * calls at initialization time that invoke a main loop and if we
+          * already owned a name, then we would service too early during
+-- 
+2.41.0
+
