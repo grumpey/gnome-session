@@ -124,8 +124,10 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_libexecdir}/gnome-session-failed
 %{_mandir}/man1/gnome-session*1.*
 %{_datadir}/gnome-session/
+%dir %{_datadir}/xdg-desktop-portal
 %{_datadir}/xdg-desktop-portal/gnome-portals.conf
-%{_datadir}/doc/gnome-session/dbus/gnome-session.html
+%{_datadir}/doc/gnome-session/
+%dir %{_datadir}/GConf/gsettings
 %{_datadir}/GConf/gsettings/gnome-session.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.SessionManager.gschema.xml
 %{_userunitdir}/gnome-session*
