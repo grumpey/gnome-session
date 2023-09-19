@@ -1,4 +1,4 @@
-%define po_package gnome-session-44
+%define po_package gnome-session-45
 
 %if 0%{?fedora}
 %else
@@ -8,13 +8,13 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:    gnome-session
-Version: 44.0
+Version: 45.0
 Release: %autorelease
 Summary: GNOME session manager
 
 License: GPL-2.0-or-later
 URL:     https://gitlab.gnome.org/GNOME/gnome-session
-Source0: https://download.gnome.org/sources/gnome-session/44/%{name}-%{tarball_version}.tar.xz
+Source0: https://download.gnome.org/sources/gnome-session/45/%{name}-%{tarball_version}.tar.xz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch: gnome-session-3.3.92-nv30.patch
@@ -24,12 +24,6 @@ Patch: 0001-check-accelerated-gles-Use-eglGetPlatformDisplay-EXT.patch
 # For https://fedoraproject.org/w/index.php?title=Changes/HiddenGrubMenu
 # This should go upstream once systemd has a generic interface for this
 Patch: 0001-Fedora-Set-grub-boot-flags-on-shutdown-reboot.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-session/-/merge_requests/96
-Patch: 0001-main-Fix-crash-if-gnome-session-is-started-more-than.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-session/-/merge_requests/95
-Patch: gnome-session-add-gnome-portals-conf.patch
 
 BuildRequires: meson
 BuildRequires: gcc
