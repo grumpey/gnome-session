@@ -64,6 +64,11 @@ Requires: gsettings-desktop-schemas >= 0.1.7
 
 Requires: dbus
 
+# https://github.com/containers/composefs/pull/229#issuecomment-1838735764
+%if 0%{?rhel} >= 10
+ExcludeArch:    %{ix86}
+%endif
+
 
 %description
 gnome-session manages a GNOME desktop or GDM login session. It starts up
