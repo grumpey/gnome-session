@@ -49,7 +49,6 @@ BuildRequires:  pkgconfig(xtst)
 BuildRequires:  usermode
 
 BuildRequires:  gettext
-BuildRequires:  intltool
 BuildRequires:  xmlto
 BuildRequires:  /usr/bin/xsltproc
 
