@@ -14,7 +14,7 @@ Summary:        GNOME session manager
 
 License:        GPL-2.0-or-later
 URL:            https://gitlab.gnome.org/GNOME/gnome-session
-Source:         https://download.gnome.org/sources/gnome-session/48/%{name}-%{tarball_version}.tar.xz
+Source:         https://download.gnome.org/sources/gnome-session/48/%{name}-%{tarball_version}.tar.gz
 
 # Blacklist NV30: https://bugzilla.redhat.com/show_bug.cgi?id=745202
 Patch:          gnome-session-3.3.92-nv30.patch
