@@ -118,7 +118,7 @@ Desktop file to add GNOME on wayland to display manager session menu.
 %{_datadir}/wayland-sessions/*
 
 %files -f %{po_package}.lang
-%doc AUTHORS NEWS README
+%doc AUTHORS NEWS README.md
 %license COPYING
 %{_bindir}/gnome-session*
 %{_libexecdir}/gnome-session-binary
